@@ -1,0 +1,182 @@
+import type { Resource } from "./types";
+
+export const resourceCategories = [
+  "Understanding Mental Health",
+  "Stress & Coping",
+  "Anxiety",
+  "Self-Esteem",
+  "Social Media & Mental Health",
+  "Supporting a Friend",
+  "Youth Mental Health",
+  "Families & Caregivers",
+  "When to Seek Professional Help",
+  "Creative Expression & Wellbeing",
+];
+
+export const resources: Resource[] = [
+  {
+    id: "r1",
+    slug: "what-mental-health-really-means",
+    title: "What mental health really means",
+    excerpt:
+      "Mental health is not only the absence of illness. It is how we cope, connect, work and rest — and it changes over time.",
+    category: "Understanding Mental Health",
+    type: "article",
+    readingTime: 5,
+    publishedAt: "2025-02-10",
+    reviewedAt: "2025-02-10",
+    body: [
+      "Mental health describes how we think, feel and cope with everyday life. Like physical health, it moves along a range: some weeks feel steady, others feel heavy. Neither means something is permanently wrong with you.",
+      "Talking about mental health in Nepali households is often difficult because the vocabulary itself can feel medical or foreign. Starting with ordinary words — tiredness, worry, sleeplessness, pressure — usually opens the conversation more gently than clinical terms.",
+      "Noticing change is the most useful skill. Sleep, appetite, concentration, irritability and withdrawal from people are common early signals that something needs attention and care.",
+      "Support can look like many things: a conversation with someone you trust, a change in routine, community connection, or seeing a qualified professional. Each is a legitimate step.",
+    ],
+  },
+  {
+    id: "r2",
+    slug: "everyday-ways-to-work-with-stress",
+    title: "Everyday ways to work with stress",
+    excerpt:
+      "Small, repeatable practices tend to help more than dramatic changes. Here are approaches participants find realistic.",
+    category: "Stress & Coping",
+    type: "guide",
+    readingTime: 6,
+    publishedAt: "2025-03-04",
+    reviewedAt: "2025-03-04",
+    body: [
+      "Stress is a response, not a personal failure. It shows up in the body before we name it: tight shoulders, shallow breathing, a short temper, an unsettled stomach.",
+      "Begin by identifying triggers. Writing down when stress peaks for one week often reveals a pattern — an exam cycle, a commute, a relationship, a financial deadline.",
+      "Then build one small anchor into the day: a walk without a phone, slower breathing for two minutes, a fixed sleep time, a short conversation with someone who listens well.",
+      "If stress is persistent, interferes with daily functioning, or is accompanied by hopelessness, that is a signal to seek support from a qualified professional.",
+    ],
+  },
+  {
+    id: "r3",
+    slug: "understanding-anxiety",
+    title: "Understanding anxiety",
+    excerpt:
+      "Anxiety is a normal human response that becomes difficult when it stays switched on. Learn what it looks like.",
+    category: "Anxiety",
+    type: "article",
+    readingTime: 5,
+    publishedAt: "2025-03-18",
+    body: [
+      "Anxiety prepares the body for something demanding. Difficulty begins when that preparation continues in situations that do not require it.",
+      "Common experiences include racing thoughts, avoidance, restlessness, difficulty sleeping, and physical symptoms like a fast heartbeat.",
+      "Grounding approaches — naming what you can see and hear, slowing the out-breath, stepping outside — can reduce intensity in the moment.",
+      "Ongoing anxiety that limits study, work or relationships deserves professional assessment. Seeking help early is not an overreaction.",
+    ],
+  },
+  {
+    id: "r4",
+    slug: "building-self-esteem",
+    title: "Building self-esteem, gently",
+    excerpt: "Self-esteem grows through evidence and self-respect, not through forced positivity.",
+    category: "Self-Esteem",
+    type: "article",
+    readingTime: 4,
+    publishedAt: "2025-04-01",
+    body: [
+      "Self-esteem is the quiet sense that you are worth care and effort. It is shaped by family, school, community and comparison.",
+      "Instead of affirmations that feel untrue, collect evidence: things you finished, moments you were kind, difficulties you survived.",
+      "Notice the tone of your internal voice. Would you speak to a friend that way? Adjusting that tone is slow, real work.",
+    ],
+  },
+  {
+    id: "r5",
+    slug: "social-media-and-your-mind",
+    title: "Social media and your mind",
+    excerpt:
+      "Comparison, online identity and endless scrolling shape wellbeing. A few boundaries change a lot.",
+    category: "Social Media & Mental Health",
+    type: "guide",
+    readingTime: 5,
+    publishedAt: "2025-04-22",
+    body: [
+      "Feeds show edited highlights. Comparing your ordinary day to someone's best moment is not a fair comparison.",
+      "Notice how you feel after fifteen minutes on an app. That feeling is more useful data than screen-time numbers.",
+      "Practical boundaries: no phone in the first and last thirty minutes of the day, muting accounts that leave you deflated, and keeping one part of the day fully offline.",
+    ],
+  },
+  {
+    id: "r6",
+    slug: "how-to-support-a-friend",
+    title: "How to support a friend who is struggling",
+    excerpt: "You do not need the right words. Presence, patience and honesty matter far more.",
+    category: "Supporting a Friend",
+    type: "guide",
+    readingTime: 6,
+    publishedAt: "2025-05-06",
+    body: [
+      "Start by asking and then listening without rushing to fix. Silence in a conversation is allowed.",
+      "Avoid minimising phrases such as 'others have it worse'. Try 'that sounds heavy — how long has it been like this?'",
+      "Be honest about your limits. Supporting someone does not mean carrying responsibility for their recovery.",
+      "If you are worried about someone's immediate safety, help them reach a qualified professional or a trusted adult right away.",
+    ],
+  },
+  {
+    id: "r7",
+    slug: "youth-mental-health-in-nepal",
+    title: "Youth mental wellbeing in Nepal",
+    excerpt:
+      "Academic pressure, migration and online life shape how young people in Nepal experience stress.",
+    category: "Youth Mental Health",
+    type: "article",
+    readingTime: 6,
+    publishedAt: "2025-05-20",
+    body: [
+      "Young people in Nepal navigate examinations, family expectation, separation from relatives working abroad, and a rapidly changing digital culture.",
+      "Peer conversation is often the first place difficulty is spoken aloud, which is why peer-focused programs matter.",
+      "Schools and colleges that make space for wellbeing discussions normalise help-seeking long before a crisis appears.",
+    ],
+  },
+  {
+    id: "r8",
+    slug: "for-families-and-caregivers",
+    title: "For families and caregivers",
+    excerpt: "Families are often the first support system. Small shifts in response make a difference.",
+    category: "Families & Caregivers",
+    type: "guide",
+    readingTime: 5,
+    publishedAt: "2025-06-02",
+    body: [
+      "When a family member is struggling, the instinct is often to advise or correct. Curiosity works better than instruction.",
+      "Keep routines steady where you can: shared meals, sleep, and gentle daily contact.",
+      "Caring for someone is demanding. Your own rest and support are part of the plan, not a distraction from it.",
+    ],
+  },
+  {
+    id: "r9",
+    slug: "when-to-seek-professional-help",
+    title: "When to seek professional help",
+    excerpt:
+      "Awareness work is a bridge, not a substitute. Here are signals that professional support is appropriate.",
+    category: "When to Seek Professional Help",
+    type: "guide",
+    readingTime: 4,
+    publishedAt: "2025-06-16",
+    body: [
+      "Consider professional support when difficulty lasts for weeks, interferes with study, work, sleep or relationships, or when coping approaches stop helping.",
+      "Professional support may involve a psychologist, counsellor, psychiatrist or a hospital-based mental health service.",
+      "Umanga Nepal is an awareness and community organization. We do not provide clinical diagnosis, treatment or emergency services, and we encourage people to reach qualified professionals when needed.",
+      "If you or someone else may be in immediate danger, contact local emergency services or the nearest hospital without delay.",
+    ],
+  },
+  {
+    id: "r10",
+    slug: "creative-expression-and-wellbeing",
+    title: "Creative expression and wellbeing",
+    excerpt: "Drawing, writing and making can carry feelings that language has not yet reached.",
+    category: "Creative Expression & Wellbeing",
+    type: "article",
+    readingTime: 4,
+    publishedAt: "2025-07-01",
+    body: [
+      "Creative activity gives shape to experience. It does not require skill, an audience, or a finished result.",
+      "In Umanga Nepal's creative wellbeing sessions, participants often say the making mattered more than the artwork.",
+      "Try fifteen minutes with paper and colour, with no plan for what it should become.",
+    ],
+  },
+];
+
+export const getResource = (slug: string) => resources.find((r) => r.slug === slug);
