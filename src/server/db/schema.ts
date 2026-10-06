@@ -4,6 +4,7 @@ import {
   datetime,
   index,
   int,
+  json,
   mysqlTable,
   text,
   timestamp,
@@ -61,6 +62,33 @@ export const galleryItems = mysqlTable(
   ],
 );
 
+export const ourWorkItems = mysqlTable(
+  "our_work_items",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    type: varchar("type", { length: 100 }).notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    description: text("description").notNull(),
+    tags: json("tags").$type<string[]>().notNull(),
+    imageUrl: text("image_url").notNull(),
+    imageStorageKey: varchar("image_storage_key", { length: 512 }).notNull(),
+    aboutProgram: text("about_program"),
+    whatWeCover: json("what_we_cover").$type<string[]>().notNull(),
+    awarenessSessionCount: int("awareness_session_count"),
+    participantCount: int("participant_count"),
+    published: boolean("published").default(true).notNull(),
+    sortOrder: int("sort_order"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    index("our_work_items_published_idx").on(table.published),
+    index("our_work_items_sort_order_idx").on(table.sortOrder),
+    index("our_work_items_created_at_idx").on(table.createdAt),
+    index("our_work_items_type_idx").on(table.type),
+  ],
+);
+
 export const adminUsersRelations = relations(adminUsers, ({ many }) => ({
   sessions: many(adminSessions),
 }));
@@ -78,3 +106,5 @@ export type AdminSession = typeof adminSessions.$inferSelect;
 export type NewAdminSession = typeof adminSessions.$inferInsert;
 export type GalleryItem = typeof galleryItems.$inferSelect;
 export type NewGalleryItem = typeof galleryItems.$inferInsert;
+export type OurWorkItem = typeof ourWorkItems.$inferSelect;
+export type NewOurWorkItem = typeof ourWorkItems.$inferInsert;

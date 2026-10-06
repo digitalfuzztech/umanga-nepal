@@ -15,6 +15,13 @@
       "when": 1791277321638,
       "tag": "0001_striped_zzzax",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1791302687669,
+      "tag": "0002_wooden_meteorite",
+      "breakpoints": true
     }
   ]
 }
