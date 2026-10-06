@@ -1,5 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Youtube } from "lucide-react";
+import {
+  Facebook,
+  Instagram,
+  Linkedin,
+  Mail,
+  MapPin,
+  Phone,
+  Youtube,
+} from "lucide-react";
 import { footerNav, siteConfig } from "@/data/site-config";
 import { Logo } from "./Logo";
 
@@ -19,13 +27,15 @@ function FooterColumn({
 }) {
   return (
     <div>
-      <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-ink-deep">{title}</h3>
+      <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-white">
+        {title}
+      </h3>
       <ul className="mt-4 flex flex-col gap-2.5">
         {links.map((link) => (
           <li key={link.to + link.label}>
             <Link
               to={link.to}
-              className="text-sm text-muted-foreground transition-colors hover:text-brand-strong"
+              className="text-sm text-white/65 transition-colors hover:text-brand"
             >
               {link.label}
             </Link>
@@ -42,17 +52,31 @@ export function Footer() {
   const { email, phone, address } = siteConfig.contact;
 
   return (
-    <footer className="border-t border-border bg-surface">
-      <div className="container-page grid gap-10 py-14 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
+    <footer className="relative overflow-hidden border-t border-brand-deep/15 bg-brand-deeper text-white">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-warm to-transparent"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute right-0 top-0 h-64 w-96 bg-brand-deep/50 blur-3xl"
+        aria-hidden
+      />
+      <div className="container-page relative grid gap-10 py-16 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
         <div className="max-w-sm">
-          <Logo />
-          <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+          <div className="inline-flex rounded-2xl bg-white p-2.5 shadow-soft">
+            <Logo className="[&_img]:!w-60" />
+          </div>
+          <p className="mt-6 text-sm leading-relaxed text-white/70">
             {siteConfig.shortDescription}
           </p>
-          <ul className="mt-5 flex flex-col gap-2 text-sm text-muted-foreground">
+          <ul className="mt-5 flex flex-col gap-2 text-sm text-white/70">
             {address ? (
               <li className="flex items-start gap-2">
-                <MapPin className="mt-0.5 size-4 text-brand-strong" aria-hidden /> {address}
+                <MapPin
+                  className="mt-0.5 size-4 text-brand-strong"
+                  aria-hidden
+                />{" "}
+                {address}
               </li>
             ) : null}
             {email ? (
@@ -65,7 +89,11 @@ export function Footer() {
             ) : null}
             {phone ? (
               <li className="flex items-start gap-2">
-                <Phone className="mt-0.5 size-4 text-brand-strong" aria-hidden /> {phone}
+                <Phone
+                  className="mt-0.5 size-4 text-brand-strong"
+                  aria-hidden
+                />{" "}
+                {phone}
               </li>
             ) : null}
           </ul>
@@ -78,7 +106,7 @@ export function Footer() {
                     <a
                       href={social.url}
                       aria-label={social.label}
-                      className="inline-flex size-10 items-center justify-center rounded-full border border-border bg-background text-ink transition-colors hover:border-brand hover:text-brand-strong"
+                      className="inline-flex size-10 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-colors hover:border-brand hover:bg-white/10"
                     >
                       <Icon className="size-4" />
                     </a>
@@ -95,12 +123,12 @@ export function Footer() {
         <FooterColumn title="Support" links={footerNav.support} />
       </div>
 
-      <div className="border-t border-border">
-        <div className="container-page flex flex-col gap-3 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+      <div className="relative border-t border-white/10">
+        <div className="container-page flex flex-col gap-3 py-6 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between">
           <p>© {year} Umanga Nepal. All rights reserved.</p>
           <p className="max-w-xl">
-            Umanga Nepal is an awareness and community organization. This website is not an
-            emergency, crisis or clinical service.
+            Umanga Nepal is an awareness and community organization. This
+            website is not an emergency, crisis or clinical service.
           </p>
         </div>
       </div>

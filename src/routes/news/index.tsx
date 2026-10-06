@@ -38,7 +38,7 @@ function News() {
 
       <Section>
         <SectionHeading eyebrow="Latest" title="News and updates" />
-        <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {news.map((item) => (
             <li key={item.id}>
               <NewsCard item={item} />
@@ -53,7 +53,7 @@ function News() {
           title="Upcoming events"
           description="Sessions, workshops and campaigns open to communities, schools and partners."
         />
-        <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {upcoming.map((event) => (
             <li key={event.id}>
               <EventCard event={event} />

@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as GetInvolvedRouteImport } from './routes/get-involved'
 import { Route as GetSupportRouteImport } from './routes/get-support'
 import { Route as ImpactRouteImport } from './routes/impact'
@@ -50,6 +51,11 @@ const ContactRoute = ContactRouteImport.update({
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GetInvolvedRoute = GetInvolvedRouteImport.update({
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
+  '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/get-support': typeof GetSupportRoute
   '/impact': typeof ImpactRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
+  '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/get-support': typeof GetSupportRoute
   '/impact': typeof ImpactRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
+  '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/get-support': typeof GetSupportRoute
   '/impact': typeof ImpactRoute
@@ -223,6 +232,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/events'
+    | '/gallery'
     | '/get-involved'
     | '/get-support'
     | '/impact'
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/events'
+    | '/gallery'
     | '/get-involved'
     | '/get-support'
     | '/impact'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/events'
+    | '/gallery'
     | '/get-involved'
     | '/get-support'
     | '/impact'
@@ -296,6 +308,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   EventsRoute: typeof EventsRoute
+  GalleryRoute: typeof GalleryRoute
   GetInvolvedRoute: typeof GetInvolvedRoute
   GetSupportRoute: typeof GetSupportRoute
   ImpactRoute: typeof ImpactRoute
@@ -344,6 +357,13 @@ declare module '@tanstack/react-router' {
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/get-involved': {
@@ -480,6 +500,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   EventsRoute: EventsRoute,
+  GalleryRoute: GalleryRoute,
   GetInvolvedRoute: GetInvolvedRoute,
   GetSupportRoute: GetSupportRoute,
   ImpactRoute: ImpactRoute,

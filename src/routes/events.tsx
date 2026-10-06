@@ -48,7 +48,7 @@ function Events() {
             No events are scheduled right now. Subscribe below to hear when new sessions open.
           </p>
         ) : (
-          <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {upcoming.map((event) => (
               <li key={event.id}>
                 <EventCard event={event} />
@@ -61,7 +61,7 @@ function Events() {
       {past.length > 0 ? (
         <Section tone="surface">
           <SectionHeading eyebrow="Archive" title="Past events" />
-          <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {past.map((event) => (
               <li key={event.id}>
                 <EventCard event={event} />

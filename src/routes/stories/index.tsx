@@ -36,7 +36,7 @@ function Stories() {
 
       <Section>
         <SectionHeading eyebrow="Community voices" title="Latest stories" />
-        <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {stories.map((story) => (
             <li key={story.id}>
               <StoryCard story={story} />

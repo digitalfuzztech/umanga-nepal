@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { Reveal } from "./Reveal";
 
 export function Section({
   children,
@@ -15,12 +16,19 @@ export function Section({
   const tones = {
     default: "bg-background",
     surface: "bg-surface",
-    blue: "bg-surface-blue",
+    blue: "bg-surface-blue/70",
     brand: "brand-gradient text-primary-foreground",
   } as const;
 
   return (
-    <section id={id} className={cn("py-16 sm:py-20 lg:py-24", tones[tone], className)}>
+    <section
+      id={id}
+      className={cn(
+        "relative border-t border-border/60 py-16 sm:py-20 lg:py-24",
+        tones[tone],
+        className,
+      )}
+    >
       <div className="container-page">{children}</div>
     </section>
   );
@@ -42,45 +50,49 @@ export function SectionHeading({
   children?: ReactNode;
 }) {
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-4",
-        align === "center" && "items-center text-center",
-        align === "center" && "mx-auto max-w-2xl",
-      )}
-    >
-      {eyebrow ? (
-        <span className={cn("eyebrow", onBrand && "text-primary-foreground/80")}>
-          <span
-            className={cn(
-              "h-px w-6",
-              onBrand ? "bg-primary-foreground/50" : "bg-warm",
-              align === "center" && "hidden",
-            )}
-            aria-hidden
-          />
-          {eyebrow}
-        </span>
-      ) : null}
-      <h2
+    <Reveal>
+      <div
         className={cn(
-          "text-balance-title text-3xl font-extrabold sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]",
-          onBrand ? "text-primary-foreground" : "text-ink-deep",
+          "flex flex-col gap-4",
+          align === "center" && "items-center text-center",
+          align === "center" && "mx-auto max-w-2xl",
         )}
       >
-        {title}
-      </h2>
-      {description ? (
-        <p
+        {eyebrow ? (
+          <span
+            className={cn("eyebrow", onBrand && "text-primary-foreground/80")}
+          >
+            <span
+              className={cn(
+                "h-px w-6",
+                onBrand ? "bg-primary-foreground/50" : "bg-warm",
+                align === "center" && "hidden",
+              )}
+              aria-hidden
+            />
+            {eyebrow}
+          </span>
+        ) : null}
+        <h2
           className={cn(
-            "max-w-2xl text-base sm:text-lg",
-            onBrand ? "text-primary-foreground/85" : "text-muted-foreground",
+            "text-balance-title text-3xl font-extrabold sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]",
+            onBrand ? "text-primary-foreground" : "text-ink-deep",
           )}
         >
-          {description}
-        </p>
-      ) : null}
-      {children}
-    </div>
+          {title}
+        </h2>
+        {description ? (
+          <p
+            className={cn(
+              "max-w-2xl text-base sm:text-lg",
+              onBrand ? "text-primary-foreground/85" : "text-muted-foreground",
+            )}
+          >
+            {description}
+          </p>
+        ) : null}
+        {children}
+      </div>
+    </Reveal>
   );
 }

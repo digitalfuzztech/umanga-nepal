@@ -1,18 +1,21 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ChevronDown, LifeBuoy, Menu, X } from "lucide-react";
+import { ArrowRight, ChevronDown, LifeBuoy, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { mainNav } from "@/data/site-config";
+import { events } from "@/data/news";
 import { Logo } from "./Logo";
 
 function DesktopDropdown({
   label,
   to,
+  overviewLabel,
   children,
 }: {
   label: string;
   to: string;
+  overviewLabel: string;
   children: { label: string; to: string }[];
 }) {
   const [open, setOpen] = useState(false);
@@ -31,7 +34,8 @@ function DesktopDropdown({
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       onBlur={(e) => {
-        if (!wrapperRef.current?.contains(e.relatedTarget as Node)) setOpen(false);
+        if (!wrapperRef.current?.contains(e.relatedTarget as Node))
+          setOpen(false);
       }}
     >
       <button
@@ -42,7 +46,9 @@ function DesktopDropdown({
         className="flex items-center gap-1 rounded-md px-2 py-2 text-sm font-semibold text-ink transition-colors hover:text-brand-strong"
       >
         {label}
-        <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
+        <ChevronDown
+          className={cn("size-4 transition-transform", open && "rotate-180")}
+        />
       </button>
       <div
         className={cn(
@@ -57,7 +63,7 @@ function DesktopDropdown({
               onClick={() => setOpen(false)}
               className="block rounded-xl px-3 py-2 text-sm font-semibold text-brand-strong hover:bg-brand-soft"
             >
-              All {label.toLowerCase()}
+              {overviewLabel}
             </Link>
           </li>
           {children.map((child) => (
@@ -73,6 +79,56 @@ function DesktopDropdown({
           ))}
         </ul>
       </div>
+    </div>
+  );
+}
+
+function UpcomingEventBar() {
+  const todayParts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kathmandu",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const datePart = (type: "year" | "month" | "day") =>
+    todayParts.find((part) => part.type === type)?.value ?? "";
+  const today = `${datePart("year")}-${datePart("month")}-${datePart("day")}`;
+
+  const nextEvent = events
+    .filter((event) => event.status !== "past" && event.date >= today)
+    .sort((a, b) => a.date.localeCompare(b.date))[0];
+
+  if (!nextEvent) return null;
+
+  const eventDate = new Date(`${nextEvent.date}T12:00:00`).toLocaleDateString(
+    "en-US",
+    {
+      month: "long",
+      day: "numeric",
+    },
+  );
+
+  return (
+    <div className="border-b border-brand-deep/15 bg-brand-deep text-white">
+      <Link
+        to="/events"
+        aria-label={`Upcoming event: ${nextEvent.title} on ${eventDate}. View events.`}
+        className="container-page flex min-h-10 items-center gap-2.5 py-2 text-xs transition-colors hover:bg-white/5 sm:gap-4"
+      >
+        <span className="shrink-0 rounded-full bg-warm px-2.5 py-1 text-[0.65rem] font-extrabold tracking-[0.12em] text-warm-deep">
+          UPCOMING EVENT
+        </span>
+        <span className="hidden shrink-0 font-semibold text-brand-pale sm:inline">
+          {eventDate}
+        </span>
+        <span className="min-w-0 flex-1 truncate font-semibold sm:border-l sm:border-white/20 sm:pl-4">
+          {nextEvent.title}
+        </span>
+        <span className="inline-flex shrink-0 items-center gap-1 font-bold text-white">
+          <span className="hidden sm:inline">View event</span>
+          <ArrowRight className="size-3.5" aria-hidden />
+        </span>
+      </Link>
     </div>
   );
 }
@@ -99,7 +155,8 @@ export function Header() {
     if (!mobileOpen) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMobileOpen(false);
+    const onKey = (e: KeyboardEvent) =>
+      e.key === "Escape" && setMobileOpen(false);
     document.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = previous;
@@ -117,19 +174,33 @@ export function Header() {
       </a>
       <header
         className={cn(
-          "sticky top-0 z-50 border-b bg-background/95 backdrop-blur transition-shadow",
+          "sticky top-0 z-50 border-b bg-background/97 backdrop-blur-md transition-shadow",
           scrolled ? "border-border shadow-soft" : "border-transparent",
         )}
       >
-        <div className="container-page flex h-20 items-center justify-between gap-4">
-          <Link to="/" aria-label="Umanga Nepal home">
+        <UpcomingEventBar />
+        <div className="container-page flex min-h-24 items-center justify-between gap-3 py-3 md:min-h-28 xl:min-h-30 xl:gap-5">
+          <Link
+            to="/"
+            aria-label="Umanga Nepal home"
+            className="min-w-0 shrink-0"
+          >
             <Logo />
           </Link>
 
-          <nav aria-label="Main" className="hidden xl:flex xl:items-center xl:gap-1">
+          <nav
+            aria-label="Main"
+            className="hidden xl:flex xl:items-center xl:gap-1"
+          >
             {mainNav.map((item) =>
               item.children ? (
-                <DesktopDropdown key={item.to} label={item.label} to={item.to} children={item.children} />
+                <DesktopDropdown
+                  key={item.to}
+                  label={item.label}
+                  to={item.to}
+                  overviewLabel={item.overviewLabel ?? item.label}
+                  children={item.children}
+                />
               ) : (
                 <Link
                   key={item.to}
@@ -143,14 +214,11 @@ export function Header() {
             )}
           </nav>
 
-          <div className="hidden items-center gap-2 lg:flex">
+          <div className="hidden shrink-0 items-center gap-2 lg:flex">
             <Button asChild variant="ghost" size="sm">
-              <Link to="/get-support">
+              <Link to="/get-support" className='outline'>
                 <LifeBuoy aria-hidden /> Need support?
               </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/contact">Reach out</Link>
             </Button>
             <Button asChild variant="warm" size="sm">
               <Link to="/support-us">Support our work</Link>
@@ -159,7 +227,7 @@ export function Header() {
 
           <button
             type="button"
-            className="inline-flex size-11 items-center justify-center rounded-full border border-border text-ink xl:hidden"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-border bg-background text-ink xl:hidden"
             aria-label="Open menu"
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen(true)}
@@ -193,8 +261,8 @@ export function Header() {
             mobileOpen ? "translate-x-0" : "translate-x-full",
           )}
         >
-          <div className="flex items-center justify-between border-b border-border px-5 py-4">
-            <Logo />
+          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+            <Logo className="max-w-[calc(100%-3.5rem)]" />
             <button
               type="button"
               aria-label="Close menu"
@@ -222,7 +290,9 @@ export function Header() {
                           type="button"
                           aria-label={`Toggle ${item.label} submenu`}
                           aria-expanded={expanded === item.to}
-                          onClick={() => setExpanded(expanded === item.to ? null : item.to)}
+                          onClick={() =>
+                            setExpanded(expanded === item.to ? null : item.to)
+                          }
                           className="inline-flex size-10 items-center justify-center rounded-full text-muted-foreground"
                         >
                           <ChevronDown
@@ -266,9 +336,6 @@ export function Header() {
               <Link to="/get-support">
                 <LifeBuoy aria-hidden /> Need support?
               </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/contact">Reach out</Link>
             </Button>
             <Button asChild variant="warm">
               <Link to="/support-us">Support our work</Link>

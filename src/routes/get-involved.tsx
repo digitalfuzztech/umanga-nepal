@@ -68,7 +68,7 @@ function GetInvolved() {
 
       <Section>
         <SectionHeading eyebrow="Pathways" title="Five ways to join in" />
-        <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {pathways.map((pathway) => (
             <li key={pathway.title}>
               <Link

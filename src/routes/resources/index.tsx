@@ -100,7 +100,7 @@ function Resources() {
             No resources match that search yet.
           </p>
         ) : (
-          <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map((resource) => (
               <li key={resource.id}>
                 <ResourceCard resource={resource} />

@@ -20,6 +20,7 @@ import { Testimonials } from "@/components/site/Testimonials";
 import { CTABand } from "@/components/site/CTABand";
 import { Newsletter } from "@/components/site/Newsletter";
 import { AppLink } from "@/components/site/AppLink";
+import { Reveal } from "@/components/site/Reveal";
 import { programs } from "@/data/programs";
 import { impactMetrics, nepalContext, objectiveGroups } from "@/data/impact";
 import { resources } from "@/data/resources";
@@ -89,17 +90,14 @@ function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden surface-gradient">
+      <section className="relative overflow-hidden border-b border-brand-muted/45 surface-gradient">
         <div
-          className="pointer-events-none absolute -left-32 top-10 h-80 w-80 rounded-full bg-brand-soft blur-3xl"
+          className="pointer-events-none absolute inset-x-0 top-0 h-64 editorial-grid opacity-70"
           aria-hidden
         />
-        <div
-          className="pointer-events-none absolute right-10 top-1/2 h-40 w-40 rounded-full bg-accent blur-3xl"
-          aria-hidden
-        />
-        <div className="container-page relative grid items-center gap-12 py-14 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
-          <div className="flex flex-col gap-6">
+        <div className="container-page relative grid items-center gap-14 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
+          <Reveal>
+          <div className="flex flex-col gap-6 border-l-2 border-warm pl-5 sm:pl-7">
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-background/80 px-4 py-1.5 text-xs font-semibold text-brand-strong">
               <Sparkles className="size-3.5" aria-hidden />
               {siteConfig.establishedNote}
@@ -128,14 +126,17 @@ function Home() {
               Learn about mental wellbeing <ArrowRight className="size-4" aria-hidden />
             </Link>
           </div>
+          </Reveal>
 
-          <div className="relative">
+          <Reveal variant="scale" delay={100}>
+          <div className="relative isolate p-2 sm:p-3">
+            <div className="absolute inset-0 rotate-2 rounded-[2.25rem] bg-brand-muted/55" aria-hidden />
             <img
               src={heroImage}
               alt="Community members sitting together in conversation in a courtyard in Nepal"
               width={1600}
               height={1200}
-              className="aspect-[5/4] w-full rounded-[2rem] object-cover shadow-lift"
+              className="relative aspect-[5/4] w-full rounded-[1.8rem] border border-white/80 object-cover shadow-image"
             />
             <div className="absolute -bottom-6 left-6 hidden rounded-2xl border border-border bg-background px-5 py-4 shadow-soft sm:block">
               <p className="font-display text-2xl font-extrabold text-ink-deep">
@@ -146,6 +147,7 @@ function Home() {
               </p>
             </div>
           </div>
+          </Reveal>
         </div>
       </section>
 
@@ -156,9 +158,10 @@ function Home() {
           title="What brings you here today?"
           description="Choose whatever feels closest. There is no wrong door."
         />
-        <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="reveal-grid mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {entryPoints.map((entry) => (
             <li key={entry.to}>
+              <Reveal className="h-full">
               <AppLink
                 to={entry.to}
                 className="group flex h-full flex-col gap-3 rounded-3xl border border-border bg-card p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-brand hover:shadow-lift"
@@ -173,6 +176,7 @@ function Home() {
                   <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
                 </span>
               </AppLink>
+              </Reveal>
             </li>
           ))}
         </ul>
@@ -214,12 +218,11 @@ function Home() {
           title="Small conversations. Meaningful change."
           description="Figures reflect programs delivered by Umanga Nepal. We do not combine them into a single total, because participation across programs may overlap."
         />
-        <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="reveal-grid mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {impactMetrics.map((metric) => (
-            <li
-              key={metric.label}
-              className="rounded-3xl border border-border bg-card p-7 shadow-soft"
-            >
+            <li key={metric.label}>
+              <Reveal className="h-full">
+              <div className="h-full rounded-3xl border border-brand-muted/55 bg-card p-7 shadow-card">
               <p className="font-display text-4xl font-extrabold text-brand-strong">
                 <Counter value={metric.value} />
               </p>
@@ -227,6 +230,8 @@ function Home() {
               {metric.note ? (
                 <p className="mt-1 text-xs text-muted-foreground">{metric.note}</p>
               ) : null}
+              </div>
+              </Reveal>
             </li>
           ))}
         </ul>
@@ -239,7 +244,7 @@ function Home() {
           title="How we create change"
           description="From awareness and education to creativity and community conversation, our programs meet people where they are."
         />
-        <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {programs.slice(0, 6).map((program) => (
             <li key={program.id}>
               <ProgramCard program={program} />
@@ -354,7 +359,7 @@ function Home() {
           title="Stories of hope, courage & connection"
           description="Program experiences, community change and volunteer reflections."
         />
-        <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {stories.slice(0, 3).map((story) => (
             <li key={story.id}>
               <StoryCard story={story} />
@@ -452,7 +457,7 @@ function Home() {
           title="Take a moment for your mind"
           description="Short, plain-language reading on the things people actually ask us about."
         />
-        <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {resources.slice(0, 6).map((resource) => (
             <li key={resource.id}>
               <ResourceCard resource={resource} />
