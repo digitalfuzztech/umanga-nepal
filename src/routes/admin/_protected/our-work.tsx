@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AdminEmptyState, AdminPageHeader } from "@/components/admin/AdminPage";
+import { AdminOurWorkManager } from "@/components/admin/our-work/AdminOurWorkManager";
+import { listOurWorkItemsServerFn } from "@/lib/admin-our-work-server-functions";
 
 export const Route = createFileRoute("/admin/_protected/our-work")({
+  loader: () => listOurWorkItemsServerFn(),
   head: () => ({
     meta: [
       { title: "Our Work | Umanga Nepal Admin" },
@@ -13,14 +15,7 @@ export const Route = createFileRoute("/admin/_protected/our-work")({
 });
 
 function AdminOurWorkPage() {
-  return (
-    <>
-      <AdminPageHeader
-        title="Our Work"
-        description="Manage Umanga Nepal programs and initiatives."
-        actionLabel="Add Our Work"
-      />
-      <AdminEmptyState description="Program management will be connected after its database schema is introduced." />
-    </>
-  );
+  const result = Route.useLoaderData();
+
+  return <AdminOurWorkManager initialResult={result} />;
 }
