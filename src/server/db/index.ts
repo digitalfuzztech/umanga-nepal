@@ -44,6 +44,16 @@ export function getDb(): Database {
   return database;
 }
 
+export async function closeDb(): Promise<void> {
+  if (!globalThis.__umangaMySqlPool) {
+    return;
+  }
+
+  await globalThis.__umangaMySqlPool.end();
+  globalThis.__umangaMySqlPool = undefined;
+  database = undefined;
+}
+
 /**
  * Lazily resolves the shared Drizzle client so importing server modules does
  * not require DATABASE_URL until database functionality is actually used.

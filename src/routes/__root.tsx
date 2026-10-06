@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -133,13 +134,22 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const isAdminRoute = useRouterState({
+    select: (state) =>
+      state.location.pathname === "/admin" ||
+      state.location.pathname.startsWith("/admin/"),
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SiteLayout>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      {isAdminRoute ? (
         <Outlet />
-      </SiteLayout>
+      ) : (
+        <SiteLayout>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </SiteLayout>
+      )}
       <Toaster position="top-center" />
     </QueryClientProvider>
   );

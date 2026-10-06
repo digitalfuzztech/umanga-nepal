@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as GalleryRouteImport } from './routes/gallery'
@@ -24,6 +25,8 @@ import { Route as ShareYourStoryRouteImport } from './routes/share-your-story'
 import { Route as SupportUsRouteImport } from './routes/support-us'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VolunteerRouteImport } from './routes/volunteer'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as NewsSlugRouteImport } from './routes/news/$slug'
 import { Route as OurWorkIndexRouteImport } from './routes/our-work/index'
@@ -41,6 +44,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -108,6 +116,16 @@ const VolunteerRoute = VolunteerRouteImport.update({
   path: '/volunteer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const NewsIndexRoute = NewsIndexRouteImport.update({
   id: '/news/',
   path: '/news/',
@@ -151,6 +169,7 @@ const StoriesSlugRoute = StoriesSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
@@ -165,10 +184,12 @@ export interface FileRoutesByFullPath {
   '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
   '/volunteer': typeof VolunteerRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/news/$slug': typeof NewsSlugRoute
   '/our-work/$slug': typeof OurWorkSlugRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/stories/$slug': typeof StoriesSlugRoute
+  '/admin/': typeof AdminIndexRoute
   '/news/': typeof NewsIndexRoute
   '/our-work/': typeof OurWorkIndexRoute
   '/resources/': typeof ResourcesIndexRoute
@@ -190,10 +211,12 @@ export interface FileRoutesByTo {
   '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
   '/volunteer': typeof VolunteerRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/news/$slug': typeof NewsSlugRoute
   '/our-work/$slug': typeof OurWorkSlugRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/stories/$slug': typeof StoriesSlugRoute
+  '/admin': typeof AdminIndexRoute
   '/news': typeof NewsIndexRoute
   '/our-work': typeof OurWorkIndexRoute
   '/resources': typeof ResourcesIndexRoute
@@ -202,6 +225,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
@@ -216,10 +240,12 @@ export interface FileRoutesById {
   '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
   '/volunteer': typeof VolunteerRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/news/$slug': typeof NewsSlugRoute
   '/our-work/$slug': typeof OurWorkSlugRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/stories/$slug': typeof StoriesSlugRoute
+  '/admin/': typeof AdminIndexRoute
   '/news/': typeof NewsIndexRoute
   '/our-work/': typeof OurWorkIndexRoute
   '/resources/': typeof ResourcesIndexRoute
@@ -229,6 +255,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/about'
     | '/contact'
     | '/events'
@@ -243,10 +270,12 @@ export interface FileRouteTypes {
     | '/support-us'
     | '/terms'
     | '/volunteer'
+    | '/admin/dashboard'
     | '/news/$slug'
     | '/our-work/$slug'
     | '/resources/$slug'
     | '/stories/$slug'
+    | '/admin/'
     | '/news/'
     | '/our-work/'
     | '/resources/'
@@ -268,10 +297,12 @@ export interface FileRouteTypes {
     | '/support-us'
     | '/terms'
     | '/volunteer'
+    | '/admin/dashboard'
     | '/news/$slug'
     | '/our-work/$slug'
     | '/resources/$slug'
     | '/stories/$slug'
+    | '/admin'
     | '/news'
     | '/our-work'
     | '/resources'
@@ -279,6 +310,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/about'
     | '/contact'
     | '/events'
@@ -293,10 +325,12 @@ export interface FileRouteTypes {
     | '/support-us'
     | '/terms'
     | '/volunteer'
+    | '/admin/dashboard'
     | '/news/$slug'
     | '/our-work/$slug'
     | '/resources/$slug'
     | '/stories/$slug'
+    | '/admin/'
     | '/news/'
     | '/our-work/'
     | '/resources/'
@@ -305,6 +339,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   EventsRoute: typeof EventsRoute
@@ -343,6 +378,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -436,6 +478,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VolunteerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/news/': {
       id: '/news/'
       path: '/news'
@@ -495,8 +551,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteRouteChildren {
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   EventsRoute: EventsRoute,
