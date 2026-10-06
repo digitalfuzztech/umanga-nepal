@@ -4,7 +4,7 @@
  * keep the same proportions and never distort the mark.
  */
 
-import umangaLogo from "@/assets/logo/umanga-2.jpg";
+import umangaLogo from "@/assets/logo/umanga-2.png";
 
 export function Logo({ className }: { className?: string }) {
   return (
@@ -12,7 +12,7 @@ export function Logo({ className }: { className?: string }) {
       <img
         src={umangaLogo}
         alt="Umanga Nepal"
-        className="h-auto w-52 object-contain min-[360px]:w-56 sm:w-64 md:w-72 xl:w-80 2xl:w-100"
+        className="h-auto w-48 object-contain min-[360px]:w-52 sm:w-58 md:w-64 xl:w-72 2xl:w-80"
       />
     </span>
   );

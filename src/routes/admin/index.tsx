@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { LockKeyhole, ShieldCheck } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 
-import logo from "@/assets/logo/umanga-2.jpg";
+import logo from "@/assets/logo/umanga-2.png";
 import {
   getCurrentAdminServerFn,
   loginAdminServerFn,

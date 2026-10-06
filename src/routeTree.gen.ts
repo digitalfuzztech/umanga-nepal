@@ -26,7 +26,7 @@ import { Route as SupportUsRouteImport } from './routes/support-us'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VolunteerRouteImport } from './routes/volunteer'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
+import { Route as AdminProtectedRouteImport } from './routes/admin/_protected'
 import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as NewsSlugRouteImport } from './routes/news/$slug'
 import { Route as OurWorkIndexRouteImport } from './routes/our-work/index'
@@ -35,6 +35,13 @@ import { Route as ResourcesIndexRouteImport } from './routes/resources/index'
 import { Route as ResourcesSlugRouteImport } from './routes/resources/$slug'
 import { Route as StoriesIndexRouteImport } from './routes/stories/index'
 import { Route as StoriesSlugRouteImport } from './routes/stories/$slug'
+import { Route as AdminProtectedDashboardRouteImport } from './routes/admin/_protected/dashboard'
+import { Route as AdminProtectedGalleryRouteImport } from './routes/admin/_protected/gallery'
+import { Route as AdminProtectedInboxRouteImport } from './routes/admin/_protected/inbox'
+import { Route as AdminProtectedNewsEventsRouteImport } from './routes/admin/_protected/news-events'
+import { Route as AdminProtectedOurWorkRouteImport } from './routes/admin/_protected/our-work'
+import { Route as AdminProtectedResourcesRouteImport } from './routes/admin/_protected/resources'
+import { Route as AdminProtectedStoriesRouteImport } from './routes/admin/_protected/stories'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -121,9 +128,8 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
-const AdminDashboardRoute = AdminDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AdminProtectedRoute = AdminProtectedRouteImport.update({
+  id: '/_protected',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const NewsIndexRoute = NewsIndexRouteImport.update({
@@ -166,6 +172,42 @@ const StoriesSlugRoute = StoriesSlugRouteImport.update({
   path: '/stories/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminProtectedDashboardRoute = AdminProtectedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminProtectedRoute,
+} as any)
+const AdminProtectedGalleryRoute = AdminProtectedGalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
+  getParentRoute: () => AdminProtectedRoute,
+} as any)
+const AdminProtectedInboxRoute = AdminProtectedInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
+  getParentRoute: () => AdminProtectedRoute,
+} as any)
+const AdminProtectedNewsEventsRoute =
+  AdminProtectedNewsEventsRouteImport.update({
+    id: '/news-events',
+    path: '/news-events',
+    getParentRoute: () => AdminProtectedRoute,
+  } as any)
+const AdminProtectedOurWorkRoute = AdminProtectedOurWorkRouteImport.update({
+  id: '/our-work',
+  path: '/our-work',
+  getParentRoute: () => AdminProtectedRoute,
+} as any)
+const AdminProtectedResourcesRoute = AdminProtectedResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => AdminProtectedRoute,
+} as any)
+const AdminProtectedStoriesRoute = AdminProtectedStoriesRouteImport.update({
+  id: '/stories',
+  path: '/stories',
+  getParentRoute: () => AdminProtectedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -184,7 +226,6 @@ export interface FileRoutesByFullPath {
   '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
   '/volunteer': typeof VolunteerRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
   '/news/$slug': typeof NewsSlugRoute
   '/our-work/$slug': typeof OurWorkSlugRoute
   '/resources/$slug': typeof ResourcesSlugRoute
@@ -194,6 +235,13 @@ export interface FileRoutesByFullPath {
   '/our-work/': typeof OurWorkIndexRoute
   '/resources/': typeof ResourcesIndexRoute
   '/stories/': typeof StoriesIndexRoute
+  '/admin/dashboard': typeof AdminProtectedDashboardRoute
+  '/admin/gallery': typeof AdminProtectedGalleryRoute
+  '/admin/inbox': typeof AdminProtectedInboxRoute
+  '/admin/news-events': typeof AdminProtectedNewsEventsRoute
+  '/admin/our-work': typeof AdminProtectedOurWorkRoute
+  '/admin/resources': typeof AdminProtectedResourcesRoute
+  '/admin/stories': typeof AdminProtectedStoriesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -211,16 +259,22 @@ export interface FileRoutesByTo {
   '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
   '/volunteer': typeof VolunteerRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin': typeof AdminIndexRoute
   '/news/$slug': typeof NewsSlugRoute
   '/our-work/$slug': typeof OurWorkSlugRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/stories/$slug': typeof StoriesSlugRoute
-  '/admin': typeof AdminIndexRoute
   '/news': typeof NewsIndexRoute
   '/our-work': typeof OurWorkIndexRoute
   '/resources': typeof ResourcesIndexRoute
   '/stories': typeof StoriesIndexRoute
+  '/admin/dashboard': typeof AdminProtectedDashboardRoute
+  '/admin/gallery': typeof AdminProtectedGalleryRoute
+  '/admin/inbox': typeof AdminProtectedInboxRoute
+  '/admin/news-events': typeof AdminProtectedNewsEventsRoute
+  '/admin/our-work': typeof AdminProtectedOurWorkRoute
+  '/admin/resources': typeof AdminProtectedResourcesRoute
+  '/admin/stories': typeof AdminProtectedStoriesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -240,7 +294,7 @@ export interface FileRoutesById {
   '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
   '/volunteer': typeof VolunteerRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/_protected': typeof AdminProtectedRouteWithChildren
   '/news/$slug': typeof NewsSlugRoute
   '/our-work/$slug': typeof OurWorkSlugRoute
   '/resources/$slug': typeof ResourcesSlugRoute
@@ -250,6 +304,13 @@ export interface FileRoutesById {
   '/our-work/': typeof OurWorkIndexRoute
   '/resources/': typeof ResourcesIndexRoute
   '/stories/': typeof StoriesIndexRoute
+  '/admin/_protected/dashboard': typeof AdminProtectedDashboardRoute
+  '/admin/_protected/gallery': typeof AdminProtectedGalleryRoute
+  '/admin/_protected/inbox': typeof AdminProtectedInboxRoute
+  '/admin/_protected/news-events': typeof AdminProtectedNewsEventsRoute
+  '/admin/_protected/our-work': typeof AdminProtectedOurWorkRoute
+  '/admin/_protected/resources': typeof AdminProtectedResourcesRoute
+  '/admin/_protected/stories': typeof AdminProtectedStoriesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -270,7 +331,6 @@ export interface FileRouteTypes {
     | '/support-us'
     | '/terms'
     | '/volunteer'
-    | '/admin/dashboard'
     | '/news/$slug'
     | '/our-work/$slug'
     | '/resources/$slug'
@@ -280,6 +340,13 @@ export interface FileRouteTypes {
     | '/our-work/'
     | '/resources/'
     | '/stories/'
+    | '/admin/dashboard'
+    | '/admin/gallery'
+    | '/admin/inbox'
+    | '/admin/news-events'
+    | '/admin/our-work'
+    | '/admin/resources'
+    | '/admin/stories'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -297,16 +364,22 @@ export interface FileRouteTypes {
     | '/support-us'
     | '/terms'
     | '/volunteer'
-    | '/admin/dashboard'
+    | '/admin'
     | '/news/$slug'
     | '/our-work/$slug'
     | '/resources/$slug'
     | '/stories/$slug'
-    | '/admin'
     | '/news'
     | '/our-work'
     | '/resources'
     | '/stories'
+    | '/admin/dashboard'
+    | '/admin/gallery'
+    | '/admin/inbox'
+    | '/admin/news-events'
+    | '/admin/our-work'
+    | '/admin/resources'
+    | '/admin/stories'
   id:
     | '__root__'
     | '/'
@@ -325,7 +398,7 @@ export interface FileRouteTypes {
     | '/support-us'
     | '/terms'
     | '/volunteer'
-    | '/admin/dashboard'
+    | '/admin/_protected'
     | '/news/$slug'
     | '/our-work/$slug'
     | '/resources/$slug'
@@ -335,6 +408,13 @@ export interface FileRouteTypes {
     | '/our-work/'
     | '/resources/'
     | '/stories/'
+    | '/admin/_protected/dashboard'
+    | '/admin/_protected/gallery'
+    | '/admin/_protected/inbox'
+    | '/admin/_protected/news-events'
+    | '/admin/_protected/our-work'
+    | '/admin/_protected/resources'
+    | '/admin/_protected/stories'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -485,11 +565,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
-    '/admin/dashboard': {
-      id: '/admin/dashboard'
-      path: '/dashboard'
-      fullPath: '/admin/dashboard'
-      preLoaderRoute: typeof AdminDashboardRouteImport
+    '/admin/_protected': {
+      id: '/admin/_protected'
+      path: ''
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminProtectedRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/news/': {
@@ -548,16 +628,89 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoriesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/_protected/dashboard': {
+      id: '/admin/_protected/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminProtectedDashboardRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
+    '/admin/_protected/gallery': {
+      id: '/admin/_protected/gallery'
+      path: '/gallery'
+      fullPath: '/admin/gallery'
+      preLoaderRoute: typeof AdminProtectedGalleryRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
+    '/admin/_protected/inbox': {
+      id: '/admin/_protected/inbox'
+      path: '/inbox'
+      fullPath: '/admin/inbox'
+      preLoaderRoute: typeof AdminProtectedInboxRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
+    '/admin/_protected/news-events': {
+      id: '/admin/_protected/news-events'
+      path: '/news-events'
+      fullPath: '/admin/news-events'
+      preLoaderRoute: typeof AdminProtectedNewsEventsRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
+    '/admin/_protected/our-work': {
+      id: '/admin/_protected/our-work'
+      path: '/our-work'
+      fullPath: '/admin/our-work'
+      preLoaderRoute: typeof AdminProtectedOurWorkRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
+    '/admin/_protected/resources': {
+      id: '/admin/_protected/resources'
+      path: '/resources'
+      fullPath: '/admin/resources'
+      preLoaderRoute: typeof AdminProtectedResourcesRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
+    '/admin/_protected/stories': {
+      id: '/admin/_protected/stories'
+      path: '/stories'
+      fullPath: '/admin/stories'
+      preLoaderRoute: typeof AdminProtectedStoriesRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
   }
 }
 
+interface AdminProtectedRouteChildren {
+  AdminProtectedDashboardRoute: typeof AdminProtectedDashboardRoute
+  AdminProtectedGalleryRoute: typeof AdminProtectedGalleryRoute
+  AdminProtectedInboxRoute: typeof AdminProtectedInboxRoute
+  AdminProtectedNewsEventsRoute: typeof AdminProtectedNewsEventsRoute
+  AdminProtectedOurWorkRoute: typeof AdminProtectedOurWorkRoute
+  AdminProtectedResourcesRoute: typeof AdminProtectedResourcesRoute
+  AdminProtectedStoriesRoute: typeof AdminProtectedStoriesRoute
+}
+
+const AdminProtectedRouteChildren: AdminProtectedRouteChildren = {
+  AdminProtectedDashboardRoute: AdminProtectedDashboardRoute,
+  AdminProtectedGalleryRoute: AdminProtectedGalleryRoute,
+  AdminProtectedInboxRoute: AdminProtectedInboxRoute,
+  AdminProtectedNewsEventsRoute: AdminProtectedNewsEventsRoute,
+  AdminProtectedOurWorkRoute: AdminProtectedOurWorkRoute,
+  AdminProtectedResourcesRoute: AdminProtectedResourcesRoute,
+  AdminProtectedStoriesRoute: AdminProtectedStoriesRoute,
+}
+
+const AdminProtectedRouteWithChildren = AdminProtectedRoute._addFileChildren(
+  AdminProtectedRouteChildren,
+)
+
 interface AdminRouteRouteChildren {
-  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminProtectedRoute: typeof AdminProtectedRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
-  AdminDashboardRoute: AdminDashboardRoute,
+  AdminProtectedRoute: AdminProtectedRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
 }
 

@@ -1,8 +1,11 @@
 import { relations } from "drizzle-orm";
 import {
+  boolean,
   datetime,
   index,
+  int,
   mysqlTable,
+  text,
   timestamp,
   uniqueIndex,
   varchar,
@@ -38,6 +41,26 @@ export const adminSessions = mysqlTable(
   ],
 );
 
+export const galleryItems = mysqlTable(
+  "gallery_items",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    title: varchar("title", { length: 255 }).notNull(),
+    caption: text("caption"),
+    imageUrl: text("image_url").notNull(),
+    imageStorageKey: varchar("image_storage_key", { length: 512 }).notNull(),
+    published: boolean("published").default(true).notNull(),
+    sortOrder: int("sort_order"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    index("gallery_items_published_idx").on(table.published),
+    index("gallery_items_sort_order_idx").on(table.sortOrder),
+    index("gallery_items_created_at_idx").on(table.createdAt),
+  ],
+);
+
 export const adminUsersRelations = relations(adminUsers, ({ many }) => ({
   sessions: many(adminSessions),
 }));
@@ -53,3 +76,5 @@ export type AdminUser = typeof adminUsers.$inferSelect;
 export type NewAdminUser = typeof adminUsers.$inferInsert;
 export type AdminSession = typeof adminSessions.$inferSelect;
 export type NewAdminSession = typeof adminSessions.$inferInsert;
+export type GalleryItem = typeof galleryItems.$inferSelect;
+export type NewGalleryItem = typeof galleryItems.$inferInsert;
