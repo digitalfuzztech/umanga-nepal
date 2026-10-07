@@ -24,7 +24,7 @@ export function ProgramCard({
 }) {
   return (
     <Reveal className="h-full">
-      <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-brand-muted/55 bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand/65 hover:shadow-lift">
+      <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-card transition-all duration-300 motion-safe:hover:-translate-y-0.5 hover:border-brand/65 hover:shadow-lift">
         <div className="relative aspect-[16/10] overflow-hidden">
           <ProgramImage
             src={program.imageUrl}
@@ -64,7 +64,7 @@ export function ProgramCard({
 export function StoryCard({ story }: { story: Story }) {
   return (
     <Reveal className="h-full">
-      <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-brand-muted/55 bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand/65 hover:shadow-lift">
+      <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-card transition-all duration-300 motion-safe:hover:-translate-y-0.5 hover:border-brand/65 hover:shadow-lift">
         <div className="aspect-[16/10] overflow-hidden">
           <img
             src={story.image}
@@ -112,7 +112,7 @@ export function StoryCard({ story }: { story: Story }) {
 export function ResourceCard({ resource }: { resource: Resource }) {
   return (
     <Reveal className="h-full">
-      <article className="group relative flex h-full flex-col gap-3 overflow-hidden rounded-[1.75rem] border border-brand-muted/55 bg-card p-6 shadow-card transition-all duration-300 before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-brand-muted hover:-translate-y-1 hover:border-brand hover:shadow-lift">
+      <article className="group relative flex h-full flex-col gap-3 overflow-hidden rounded-[1.75rem] border border-border bg-card p-6 shadow-card transition-all duration-300 before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-brand-muted motion-safe:hover:-translate-y-0.5 hover:border-brand hover:shadow-lift">
         <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-muted-foreground">
           <span className="rounded-full bg-surface-blue px-2.5 py-1 capitalize text-brand-strong">
             {resource.type}
@@ -144,7 +144,7 @@ export function ResourceCard({ resource }: { resource: Resource }) {
 export function NewsCard({ item }: { item: NewsItem }) {
   return (
     <Reveal className="h-full">
-      <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-brand-muted/55 bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand/65 hover:shadow-lift">
+      <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-card transition-all duration-300 motion-safe:hover:-translate-y-0.5 hover:border-brand/65 hover:shadow-lift">
         <div className="aspect-[16/10] overflow-hidden">
           <img
             src={item.image}
@@ -195,7 +195,7 @@ export function EventCard({ event }: { event: EventItem }) {
 
   return (
     <Reveal className="h-full">
-      <article className="relative flex h-full flex-col gap-3 overflow-hidden rounded-[1.75rem] border border-brand-muted/55 bg-card p-6 shadow-card before:absolute before:inset-x-0 before:top-0 before:h-1 before:bg-warm transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">
+      <article className="relative flex h-full flex-col gap-3 overflow-hidden rounded-[1.75rem] border border-border bg-card p-6 shadow-card before:absolute before:inset-x-0 before:top-0 before:h-1 before:bg-warm transition-all duration-300 motion-safe:hover:-translate-y-0.5 hover:shadow-lift">
         <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
           <span className="rounded-full bg-accent px-2.5 py-1 text-accent-foreground">
             {statusLabel}

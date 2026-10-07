@@ -174,8 +174,8 @@ export function Header() {
       </a>
       <header
         className={cn(
-          "sticky top-0 z-50 border-b bg-background/97 backdrop-blur-md transition-shadow",
-          scrolled ? "border-border shadow-soft" : "border-transparent",
+          "sticky top-0 z-50 border-b border-border bg-background/97 backdrop-blur-md transition-shadow",
+          scrolled ? "shadow-soft" : "shadow-header",
         )}
       >
         <UpcomingEventBar />
