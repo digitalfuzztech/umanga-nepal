@@ -55,6 +55,7 @@ const inputClassName =
 
 export type AdminOurWorkItem = {
   id: string;
+  slug: string;
   type: string;
   title: string;
   description: string;
@@ -76,6 +77,7 @@ type OurWorkListResult =
   | { success: false; code: string; error: string };
 
 type MetadataValues = {
+  slug: string;
   type: string;
   title: string;
   description: string;
@@ -89,6 +91,7 @@ type MetadataValues = {
 };
 
 type FieldName =
+  | "slug"
   | "type"
   | "title"
   | "description"
@@ -272,6 +275,9 @@ function OurWorkItemCard({
             <h3 className="mt-1 break-words font-display text-lg font-bold text-slate-950">
               {item.title}
             </h3>
+            <p className="mt-1 break-all text-xs text-slate-500">
+              /our-work/{item.slug}
+            </p>
           </div>
           <StatusBadge published={item.published} />
         </div>
@@ -402,6 +408,7 @@ function CreateOurWorkDialog({
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const previewUrl = useImagePreview(image);
 
   function reset() {
@@ -409,6 +416,7 @@ function CreateOurWorkDialog({
     setImage(null);
     setErrors({});
     setFormError(null);
+    setSlugManuallyEdited(false);
   }
 
   function changeOpen(nextOpen: boolean) {
@@ -466,6 +474,17 @@ function CreateOurWorkDialog({
               errors={errors}
               disabled={submitting}
               prefix="create-our-work"
+              onTitleChange={(title) =>
+                setValues((current) => ({
+                  ...current,
+                  title,
+                  slug: slugManuallyEdited ? current.slug : suggestSlug(title),
+                }))
+              }
+              onSlugChange={(slug) => {
+                setSlugManuallyEdited(true);
+                setValues((current) => ({ ...current, slug }));
+              }}
             />
             <ImageField
               id="create-our-work-image"
@@ -830,12 +849,16 @@ function MetadataFields({
   errors,
   disabled,
   prefix,
+  onTitleChange,
+  onSlugChange,
 }: {
   values: MetadataValues;
   onChange: (values: MetadataValues) => void;
   errors: FieldErrors;
   disabled: boolean;
   prefix: string;
+  onTitleChange?: (title: string) => void;
+  onSlugChange?: (slug: string) => void;
 }) {
   return (
     <>
@@ -859,9 +882,27 @@ function MetadataFields({
           error={errors.title}
           disabled={disabled}
           required
-          onChange={(title) => onChange({ ...values, title })}
+          onChange={(title) =>
+            onTitleChange
+              ? onTitleChange(title)
+              : onChange({ ...values, title })
+          }
         />
       </div>
+      <TextField
+        id={`${prefix}-slug`}
+        label="Slug"
+        helper="Used in the public URL. Changing it later changes the program URL."
+        value={values.slug}
+        maxLength={191}
+        placeholder="mental-health-awareness"
+        error={errors.slug}
+        disabled={disabled}
+        required
+        onChange={(slug) =>
+          onSlugChange ? onSlugChange(slug) : onChange({ ...values, slug })
+        }
+      />
       <TextareaField
         id={`${prefix}-description`}
         label="Description"
@@ -956,6 +997,7 @@ function TextField({
   value,
   maxLength,
   placeholder,
+  helper,
   error,
   disabled,
   required,
@@ -966,6 +1008,7 @@ function TextField({
   value: string;
   maxLength: number;
   placeholder?: string | undefined;
+  helper?: string | undefined;
   error?: string | undefined;
   disabled: boolean;
   required?: boolean | undefined;
@@ -990,10 +1033,18 @@ function TextField({
         placeholder={placeholder}
         disabled={disabled}
         aria-invalid={Boolean(error)}
-        aria-describedby={error ? `${id}-error` : undefined}
+        aria-describedby={
+          `${helper ? `${id}-help` : ""}${error ? `${helper ? " " : ""}${id}-error` : ""}` ||
+          undefined
+        }
         className={inputClassName}
         onChange={(event) => onChange(event.target.value)}
       />
+      {helper ? (
+        <p id={`${id}-help`} className="mt-1.5 text-xs text-slate-500">
+          {helper}
+        </p>
+      ) : null}
       {error ? <FieldError id={`${id}-error`} message={error} /> : null}
     </div>
   );
@@ -1352,6 +1403,7 @@ function useImagePreview(file: File | null) {
 
 function emptyMetadata(): MetadataValues {
   return {
+    slug: "",
     type: "",
     title: "",
     description: "",
@@ -1367,6 +1419,7 @@ function emptyMetadata(): MetadataValues {
 
 function metadataFromItem(item: AdminOurWorkItem): MetadataValues {
   return {
+    slug: item.slug,
     type: item.type,
     title: item.title,
     description: item.description,
@@ -1386,6 +1439,13 @@ function metadataFromItem(item: AdminOurWorkItem): MetadataValues {
 
 function validateMetadata(values: MetadataValues): FieldErrors {
   const errors: FieldErrors = {};
+  const slug = values.slug.trim();
+  if (!slug) errors.slug = "Slug is required.";
+  else if (slug.length > 191)
+    errors.slug = "Slug must be 191 characters or fewer.";
+  else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))
+    errors.slug =
+      "Use lowercase letters, numbers, and single hyphens between words.";
   if (!values.type.trim()) errors.type = "Type is required.";
   else if (values.type.trim().length > 100)
     errors.type = "Type must be 100 characters or fewer.";
@@ -1457,6 +1517,7 @@ function validateImage(file: File | null): string | null {
 
 function metadataFormData(values: MetadataValues) {
   const data = new FormData();
+  data.append("slug", values.slug);
   data.append("type", values.type);
   data.append("title", values.title);
   data.append("description", values.description);
@@ -1481,6 +1542,8 @@ function messageForFailure(
   if (code === "FILE_TOO_LARGE") return "Image must be 8 MB or smaller.";
   if (code === "INVALID_OUR_WORK_DATA")
     return "Review the highlighted fields and try again.";
+  if (code === "SLUG_ALREADY_EXISTS")
+    return "That URL slug is already in use. Choose another slug.";
   if (code === "NOT_FOUND")
     return "Our Work item not found. The list has been refreshed.";
   if (action === "create")
@@ -1490,6 +1553,17 @@ function messageForFailure(
   if (action === "replace")
     return "Unable to replace the image. Please try again.";
   return "Unable to delete the Our Work item. Please try again.";
+}
+
+function suggestSlug(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 191)
+    .replace(/-+$/g, "");
 }
 
 function clearFieldError(

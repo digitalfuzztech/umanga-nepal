@@ -2,7 +2,7 @@ import "@tanstack/react-start/server-only";
 
 import { randomUUID } from "node:crypto";
 
-import { asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { getCurrentAdmin } from "@/server/auth";
@@ -17,6 +17,7 @@ import {
 
 const MYSQL_INT_MIN = -2_147_483_648;
 const MYSQL_INT_MAX = 2_147_483_647;
+const OUR_WORK_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function nullableTrimmedString(maxLength: number) {
   return z.preprocess((value) => {
@@ -65,6 +66,7 @@ const nullableSortOrderSchema = z.preprocess((value) => {
 
 export const ourWorkMetadataSchema = z
   .object({
+    slug: z.string().trim().min(1).max(191).regex(OUR_WORK_SLUG_PATTERN),
     type: z.string().trim().min(1).max(100),
     title: z.string().trim().min(1).max(255),
     description: z.string().trim().min(1).max(5_000),
@@ -95,6 +97,7 @@ export type OurWorkAdminItem = OurWorkItem;
 export type PublishedOurWorkItem = Pick<
   OurWorkItem,
   | "id"
+  | "slug"
   | "type"
   | "title"
   | "description"
@@ -111,6 +114,7 @@ export type PublishedOurWorkItem = Pick<
 export type OurWorkErrorCode =
   | "UNAUTHORIZED"
   | "INVALID_OUR_WORK_DATA"
+  | "SLUG_ALREADY_EXISTS"
   | "NOT_FOUND"
   | "STORAGE_NOT_CONFIGURED"
   | "INVALID_IMAGE"
@@ -140,6 +144,7 @@ export type OurWorkFailure = {
 
 const adminColumns = {
   id: ourWorkItems.id,
+  slug: ourWorkItems.slug,
   type: ourWorkItems.type,
   title: ourWorkItems.title,
   description: ourWorkItems.description,
@@ -158,6 +163,7 @@ const adminColumns = {
 
 const publicColumns = {
   id: ourWorkItems.id,
+  slug: ourWorkItems.slug,
   type: ourWorkItems.type,
   title: ourWorkItems.title,
   description: ourWorkItems.description,
@@ -221,6 +227,43 @@ async function findOurWorkItem(id: string): Promise<OurWorkAdminItem | null> {
     .where(eq(ourWorkItems.id, id))
     .limit(1);
   return item ?? null;
+}
+
+async function slugExists(
+  slug: string,
+  excludingId?: string,
+): Promise<boolean> {
+  const where = excludingId
+    ? and(eq(ourWorkItems.slug, slug), ne(ourWorkItems.id, excludingId))
+    : eq(ourWorkItems.slug, slug);
+  const [item] = await db
+    .select({ id: ourWorkItems.id })
+    .from(ourWorkItems)
+    .where(where)
+    .limit(1);
+  return Boolean(item);
+}
+
+function isDuplicateEntryError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const candidate = error as {
+    code?: unknown;
+    errno?: unknown;
+    cause?: unknown;
+  };
+  return (
+    candidate.code === "ER_DUP_ENTRY" ||
+    candidate.errno === 1062 ||
+    (candidate.cause !== undefined && isDuplicateEntryError(candidate.cause))
+  );
+}
+
+function slugAlreadyExistsError(cause?: unknown): OurWorkApplicationError {
+  return new OurWorkApplicationError(
+    "SLUG_ALREADY_EXISTS",
+    "That URL slug is already in use. Choose another slug.",
+    cause,
+  );
 }
 
 function logCleanupWarning(operation: string, itemId: string): void {
@@ -337,6 +380,33 @@ export async function getPublishedOurWorkItems(): Promise<
   }
 }
 
+export async function getPublishedOurWorkItemBySlug(
+  slugInput: unknown,
+): Promise<PublishedOurWorkItem | null> {
+  const parsed = ourWorkMetadataSchema.shape.slug.safeParse(slugInput);
+  if (!parsed.success) return null;
+
+  try {
+    const [item] = await db
+      .select(publicColumns)
+      .from(ourWorkItems)
+      .where(
+        and(
+          eq(ourWorkItems.slug, parsed.data),
+          eq(ourWorkItems.published, true),
+        ),
+      )
+      .limit(1);
+    return item ?? null;
+  } catch (error) {
+    throw new OurWorkApplicationError(
+      "UNABLE_TO_LOAD",
+      "Unable to load the Our Work item.",
+      error,
+    );
+  }
+}
+
 export async function createOurWorkItem(input: {
   metadata: OurWorkMetadataInput;
   image: OurWorkImageInput;
@@ -344,6 +414,7 @@ export async function createOurWorkItem(input: {
   await requireAuthenticatedAdmin();
   const metadata = parseMetadata(input.metadata);
   const id = randomUUID();
+  if (await slugExists(metadata.slug)) throw slugAlreadyExistsError();
   const uploaded = await uploadOurWorkImage(input.image);
 
   if (!uploaded.publicUrl) {
@@ -373,6 +444,7 @@ export async function createOurWorkItem(input: {
     });
   } catch (error) {
     await tryDeleteMediaForCleanup(uploaded.key, "create", id);
+    if (isDuplicateEntryError(error)) throw slugAlreadyExistsError(error);
     throw new OurWorkApplicationError(
       "SAVE_FAILED",
       "Unable to save Our Work item.",
@@ -397,6 +469,8 @@ export async function updateOurWorkItemMetadata(input: {
       );
     }
 
+    if (await slugExists(metadata.slug, id)) throw slugAlreadyExistsError();
+
     await db.update(ourWorkItems).set(metadata).where(eq(ourWorkItems.id, id));
     const updated = await findOurWorkItem(id);
     if (!updated) {
@@ -408,6 +482,7 @@ export async function updateOurWorkItemMetadata(input: {
     return updated;
   } catch (error) {
     if (error instanceof OurWorkApplicationError) throw error;
+    if (isDuplicateEntryError(error)) throw slugAlreadyExistsError(error);
     throw new OurWorkApplicationError(
       "UPDATE_FAILED",
       "Unable to update Our Work item.",

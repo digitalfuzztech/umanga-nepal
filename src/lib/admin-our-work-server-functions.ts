@@ -9,6 +9,7 @@ const nullableIntegerTransportSchema = z
 
 const ourWorkMetadataTransportSchema = z
   .object({
+    slug: z.string(),
     type: z.string(),
     title: z.string(),
     description: z.string(),
@@ -48,6 +49,7 @@ function parseStringArray(value: FormDataEntryValue | null): unknown[] | null {
 }
 
 function readMetadata(formData: FormData) {
+  const slug = formData.get("slug");
   const type = formData.get("type");
   const title = formData.get("title");
   const description = formData.get("description");
@@ -60,6 +62,7 @@ function readMetadata(formData: FormData) {
   const sortOrder = formData.get("sortOrder");
 
   if (
+    typeof slug !== "string" ||
     typeof type !== "string" ||
     typeof title !== "string" ||
     typeof description !== "string" ||
@@ -76,6 +79,7 @@ function readMetadata(formData: FormData) {
   }
 
   return {
+    slug,
     type,
     title,
     description,

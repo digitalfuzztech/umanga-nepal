@@ -19,6 +19,7 @@ import {
   deleteOurWorkItem,
   getOurWorkItemById,
   getOurWorkItemsForAdmin,
+  getPublishedOurWorkItemBySlug,
   getPublishedOurWorkItems,
   OurWorkApplicationError,
   ourWorkMetadataSchema,
@@ -100,6 +101,7 @@ async function main() {
 
   try {
     const normalized = ourWorkMetadataSchema.parse({
+      slug: "slug-verification-program",
       type: "  Program  ",
       title: "  Verification program  ",
       description: "  Initial description.  ",
@@ -183,10 +185,23 @@ async function main() {
 
     const originalImageUrl = created.imageUrl;
     const originalImageStorageKey = created.imageStorageKey;
+    const titleUpdated = await runInRequest(session.token, () =>
+      updateOurWorkItemMetadata({
+        id: created.id,
+        metadata: {
+          ...normalized,
+          title: "Slug Verification Program Updated",
+        },
+      }),
+    );
+    const titleChangePreservedSlug =
+      titleUpdated.slug === "slug-verification-program";
+
     const unpublished = await runInRequest(session.token, () =>
       updateOurWorkItemMetadata({
         id: created.id,
         metadata: {
+          slug: "slug-verification-program-updated",
           type: "Campaign",
           title: "Verification program updated",
           description: "Updated description.",
@@ -201,6 +216,7 @@ async function main() {
       }),
     );
     const metadataUpdated =
+      unpublished.slug === "slug-verification-program-updated" &&
       unpublished.type === "Campaign" &&
       unpublished.title === "Verification program updated" &&
       unpublished.description === "Updated description." &&
@@ -216,11 +232,33 @@ async function main() {
     const excludedWhileUnpublished = !(await getPublishedOurWorkItems()).some(
       (item) => item.id === created.id,
     );
+    const unpublishedBySlugExcluded =
+      (await getPublishedOurWorkItemBySlug(unpublished.slug)) === null;
+
+    const duplicateSlugRejected = await expectOurWorkError(
+      () =>
+        runInRequest(session.token, () =>
+          createOurWorkItem({
+            metadata: { ...normalized, slug: unpublished.slug },
+            image,
+          }),
+        ),
+      "SLUG_ALREADY_EXISTS",
+    );
+    const invalidSlugsRejected = [
+      "Slug Verification",
+      "slug_verification",
+      "slug--verification",
+    ].every(
+      (slug) =>
+        !ourWorkMetadataSchema.safeParse({ ...normalized, slug }).success,
+    );
 
     const republished = await runInRequest(session.token, () =>
       updateOurWorkItemMetadata({
         id: created.id,
         metadata: {
+          slug: unpublished.slug,
           type: unpublished.type,
           title: unpublished.title,
           description: unpublished.description,
@@ -235,7 +273,12 @@ async function main() {
       }),
     );
     const includedAfterRepublish = (await getPublishedOurWorkItems()).some(
-      (item) => item.id === created.id,
+      (item) =>
+        item.id === created.id &&
+        item.slug === "slug-verification-program-updated",
+    );
+    const publishedBySlug = await getPublishedOurWorkItemBySlug(
+      "slug-verification-program-updated",
     );
 
     const replacement = await runInRequest(session.token, () =>
@@ -278,6 +321,7 @@ async function main() {
 
     const result = {
       metadataNormalization:
+        normalized.slug === "slug-verification-program" &&
         normalized.type === "Program" &&
         normalized.title === "Verification program" &&
         normalized.description === "Initial description." &&
@@ -302,11 +346,21 @@ async function main() {
       jsonArraysVerified,
       nullMetricsVerified,
       metadataUpdated,
+      titleChangePreservedSlug,
+      explicitSlugUpdatePersisted:
+        unpublished.slug === "slug-verification-program-updated",
+      duplicateSlugRejected,
+      invalidSlugsRejected,
       imageFieldsUnchangedDuringMetadataUpdate:
         unpublished.imageUrl === originalImageUrl &&
         unpublished.imageStorageKey === originalImageStorageKey,
       excludedWhileUnpublished,
+      unpublishedBySlugExcluded,
       includedAfterRepublish,
+      publishedListIncludesSlug: includedAfterRepublish,
+      publishedBySlugLookup:
+        publishedBySlug?.id === created.id &&
+        publishedBySlug.slug === "slug-verification-program-updated",
       replacementVerified,
       deleteSucceeded: deletion.deleted && !deletion.cleanupWarning,
       deletedFromDatabase,

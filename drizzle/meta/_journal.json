@@ -22,6 +22,13 @@
       "when": 1791302687669,
       "tag": "0002_wooden_meteorite",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1791305118424,
+      "tag": "0003_tan_chameleon",
+      "breakpoints": true
     }
   ]
 }

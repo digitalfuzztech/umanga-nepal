@@ -66,6 +66,7 @@ export const ourWorkItems = mysqlTable(
   "our_work_items",
   {
     id: varchar("id", { length: 36 }).primaryKey(),
+    slug: varchar("slug", { length: 191 }).notNull(),
     type: varchar("type", { length: 100 }).notNull(),
     title: varchar("title", { length: 255 }).notNull(),
     description: text("description").notNull(),
@@ -82,6 +83,7 @@ export const ourWorkItems = mysqlTable(
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },
   (table) => [
+    uniqueIndex("our_work_items_slug_unique").on(table.slug),
     index("our_work_items_published_idx").on(table.published),
     index("our_work_items_sort_order_idx").on(table.sortOrder),
     index("our_work_items_created_at_idx").on(table.createdAt),

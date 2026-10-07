@@ -15,6 +15,7 @@
     "db:seed": "tsx src/server/db/seed.ts",
     "gallery:verify": "tsx scripts/verify-gallery-backend.ts",
     "our-work:verify": "tsx scripts/verify-our-work-backend.ts",
+    "our-work:migrate": "tsx scripts/migrate-our-work-static.ts",
     "storage:verify": "tsx scripts/verify-media-storage.ts",
     "mail:verify": "tsx scripts/verify-mail.ts"
   },
