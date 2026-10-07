@@ -3,9 +3,13 @@ import { PageHero } from "@/components/site/PageHero";
 import { Section, SectionHeading } from "@/components/site/Section";
 import { ProgramCard } from "@/components/site/Cards";
 import { CTABand } from "@/components/site/CTABand";
-import { programs } from "@/data/programs";
+import { getPublishedOurWorkItemsServerFn } from "@/lib/our-work-server-functions";
 
 export const Route = createFileRoute("/our-work/")({
+  loader: () => getPublishedOurWorkItemsServerFn(),
+  staleTime: 0,
+  gcTime: 0,
+  shouldReload: true,
   head: () => ({
     meta: [
       { title: "Our Work | Mental Health Programs by Umanga Nepal" },
@@ -17,7 +21,8 @@ export const Route = createFileRoute("/our-work/")({
       { property: "og:title", content: "Our Work | Umanga Nepal" },
       {
         property: "og:description",
-        content: "Explore the mental health programs Umanga Nepal delivers in communities across Nepal.",
+        content:
+          "Explore the mental health programs Umanga Nepal delivers in communities across Nepal.",
       },
     ],
   }),
@@ -25,7 +30,8 @@ export const Route = createFileRoute("/our-work/")({
 });
 
 function OurWork() {
-  const categories = Array.from(new Set(programs.map((p) => p.category)));
+  const programs = Route.useLoaderData();
+  const categories = Array.from(new Set(programs.map((p) => p.type)));
 
   return (
     <>
@@ -51,13 +57,19 @@ function OurWork() {
             </li>
           ))}
         </ul>
-        <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {programs.map((program) => (
-            <li key={program.id}>
-              <ProgramCard program={program} />
-            </li>
-          ))}
-        </ul>
+        {programs.length > 0 ? (
+          <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {programs.map((program) => (
+              <li key={program.id}>
+                <ProgramCard program={program} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-10 text-muted-foreground">
+            More programs are on the way. Please check back soon.
+          </p>
+        )}
       </Section>
 
       <CTABand />

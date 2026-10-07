@@ -21,7 +21,9 @@ import { CTABand } from "@/components/site/CTABand";
 import { Newsletter } from "@/components/site/Newsletter";
 import { AppLink } from "@/components/site/AppLink";
 import { Reveal } from "@/components/site/Reveal";
-import { programs } from "@/data/programs";
+import { getPublishedOurWorkItemsServerFn } from "@/lib/our-work-server-functions";
+import { getFeaturedOurWorkItem } from "@/lib/our-work";
+import { ProgramImage } from "@/components/site/ProgramImage";
 import { impactMetrics, nepalContext, objectiveGroups } from "@/data/impact";
 import { resources } from "@/data/resources";
 import { stories } from "@/data/stories";
@@ -30,6 +32,10 @@ import { partners } from "@/data/testimonials";
 import { siteConfig } from "@/data/site-config";
 
 export const Route = createFileRoute("/")({
+  loader: () => getPublishedOurWorkItemsServerFn(),
+  staleTime: 0,
+  gcTime: 0,
+  shouldReload: true,
   head: () => ({
     meta: [
       { title: "Umanga Nepal | Every Mind Deserves to Be Heard" },
@@ -85,7 +91,8 @@ const entryPoints = [
 ];
 
 function Home() {
-  const featured = programs.find((p) => p.featured) ?? programs[2];
+  const programs = Route.useLoaderData();
+  const featured = getFeaturedOurWorkItem(programs);
 
   return (
     <>
@@ -265,8 +272,8 @@ function Home() {
         <Section>
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div className="relative">
-              <img
-                src={featured.heroImage}
+              <ProgramImage
+                src={featured.imageUrl}
                 alt={featured.title}
                 loading="lazy"
                 width={1400}
@@ -278,9 +285,9 @@ function Home() {
               </span>
             </div>
             <div className="flex flex-col gap-5">
-              <SectionHeading eyebrow={featured.category} title={featured.title} />
+              <SectionHeading eyebrow={featured.type} title={featured.title} />
               <p className="text-base leading-relaxed text-muted-foreground">
-                {featured.description}
+                {featured.aboutProgram}
               </p>
               <ul className="flex flex-wrap gap-2">
                 {featured.tags.map((tag) => (

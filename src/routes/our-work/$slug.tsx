@@ -4,22 +4,44 @@ import { Section, SectionHeading } from "@/components/site/Section";
 import { Button } from "@/components/ui/button";
 import { ProgramCard } from "@/components/site/Cards";
 import { CTABand } from "@/components/site/CTABand";
-import { getProgram, programs } from "@/data/programs";
+import {
+  getPublishedOurWorkItemBySlugServerFn,
+  getPublishedOurWorkItemsServerFn,
+} from "@/lib/our-work-server-functions";
+import { getOurWorkMetrics } from "@/lib/our-work";
+import { ProgramImage } from "@/components/site/ProgramImage";
 import { Counter } from "@/components/site/Counter";
 
 export const Route = createFileRoute("/our-work/$slug")({
-  loader: ({ params }) => {
-    const program = getProgram(params.slug);
+  loader: async ({ params }) => {
+    const program = await getPublishedOurWorkItemBySlugServerFn({
+      data: params.slug,
+    });
     if (!program) throw notFound();
-    return program;
+    const programs = await getPublishedOurWorkItemsServerFn();
+    return {
+      program,
+      related: programs
+        .filter((item) => item.slug !== program.slug)
+        .slice(0, 3),
+    };
   },
+  staleTime: 0,
+  gcTime: 0,
+  shouldReload: true,
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [
-          { title: `${loaderData.title} | Umanga Nepal` },
-          { name: "description", content: loaderData.shortDescription },
-          { property: "og:title", content: `${loaderData.title} | Umanga Nepal` },
-          { property: "og:description", content: loaderData.shortDescription },
+          { title: `${loaderData.program.title} | Umanga Nepal` },
+          { name: "description", content: loaderData.program.description },
+          {
+            property: "og:title",
+            content: `${loaderData.program.title} | Umanga Nepal`,
+          },
+          {
+            property: "og:description",
+            content: loaderData.program.description,
+          },
         ]
       : [],
   }),
@@ -27,8 +49,8 @@ export const Route = createFileRoute("/our-work/$slug")({
 });
 
 function ProgramDetail() {
-  const program = Route.useLoaderData();
-  const related = programs.filter((p) => p.slug !== program.slug).slice(0, 3);
+  const { program, related } = Route.useLoaderData();
+  const metrics = getOurWorkMetrics(program);
 
   return (
     <>
@@ -42,11 +64,13 @@ function ProgramDetail() {
           </Link>
           <div className="mt-6 grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div className="flex flex-col gap-5">
-              <span className="eyebrow">{program.category}</span>
+              <span className="eyebrow">{program.type}</span>
               <h1 className="text-balance-title text-4xl font-extrabold leading-tight text-ink-deep sm:text-5xl">
                 {program.title}
               </h1>
-              <p className="text-lg text-muted-foreground">{program.shortDescription}</p>
+              <p className="text-lg text-muted-foreground">
+                {program.description}
+              </p>
               <ul className="flex flex-wrap gap-2">
                 {program.tags.map((tag) => (
                   <li
@@ -66,8 +90,8 @@ function ProgramDetail() {
                 </Button>
               </div>
             </div>
-            <img
-              src={program.heroImage}
+            <ProgramImage
+              src={program.imageUrl}
               alt={program.title}
               width={1400}
               height={1000}
@@ -80,24 +104,37 @@ function ProgramDetail() {
       <Section>
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="flex flex-col gap-5">
-            <h2 className="font-display text-2xl font-bold text-ink-deep">About the program</h2>
-            <p className="text-base leading-relaxed text-muted-foreground">{program.description}</p>
-            {program.note ? (
+            {program.aboutProgram ? (
+              <>
+                <h2 className="font-display text-2xl font-bold text-ink-deep">
+                  About the program
+                </h2>
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  {program.aboutProgram}
+                </p>
+              </>
+            ) : null}
+            {program.advisoryNote ? (
               <div className="flex gap-3 rounded-2xl border border-border bg-accent/60 p-5 text-sm text-accent-foreground">
                 <AlertCircle className="mt-0.5 size-5 shrink-0" aria-hidden />
-                <p>{program.note}</p>
+                <p>{program.advisoryNote}</p>
               </div>
             ) : null}
           </div>
 
           <div className="flex flex-col gap-6">
-            {program.topics?.length ? (
+            {program.whatWeCover.length ? (
               <div className="rounded-3xl border border-border bg-surface p-7">
-                <h3 className="font-display text-lg font-bold text-ink-deep">What we cover</h3>
+                <h3 className="font-display text-lg font-bold text-ink-deep">
+                  What we cover
+                </h3>
                 <ul className="mt-4 flex flex-col gap-2.5 text-sm text-muted-foreground">
-                  {program.topics.map((topic) => (
+                  {program.whatWeCover.map((topic) => (
                     <li key={topic} className="flex gap-2">
-                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-brand" aria-hidden />
+                      <span
+                        className="mt-2 size-1.5 shrink-0 rounded-full bg-brand"
+                        aria-hidden
+                      />
                       {topic}
                     </li>
                   ))}
@@ -105,19 +142,25 @@ function ProgramDetail() {
               </div>
             ) : null}
 
-            {program.metrics?.length ? (
+            {metrics.length ? (
               <div className="grid gap-3 sm:grid-cols-2">
-                {program.metrics.map((metric) => (
+                {metrics.map((metric) => (
                   <div
-                    key={metric.label}
+                    key={metric.id}
                     className="rounded-3xl border border-border bg-card p-6 shadow-soft"
                   >
                     <p className="font-display text-3xl font-extrabold text-brand-strong">
                       <Counter value={metric.value} />
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-ink-deep">{metric.label}</p>
+                    {metric.label ? (
+                      <p className="mt-1 text-sm font-semibold text-ink-deep">
+                        {metric.label}
+                      </p>
+                    ) : null}
                     {metric.note ? (
-                      <p className="text-xs text-muted-foreground">{metric.note}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {metric.note}
+                      </p>
                     ) : null}
                   </div>
                 ))}

@@ -2,10 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { Section, SectionHeading } from "@/components/site/Section";
 import { InquiryForm } from "@/components/site/InquiryForm";
-import { programs } from "@/data/programs";
+import { getPublishedOurWorkItemsServerFn } from "@/lib/our-work-server-functions";
 import inviteImage from "@/assets/program-school.jpg";
 
 export const Route = createFileRoute("/invite-umanga")({
+  loader: () => getPublishedOurWorkItemsServerFn(),
+  staleTime: 0,
+  gcTime: 0,
+  shouldReload: true,
   head: () => ({
     meta: [
       { title: "Invite Umanga | Request a Mental Health Session" },
@@ -25,6 +29,7 @@ export const Route = createFileRoute("/invite-umanga")({
 });
 
 function InviteUmanga() {
+  const programs = Route.useLoaderData();
   return (
     <>
       <PageHero

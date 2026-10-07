@@ -7,9 +7,14 @@ import { Testimonials } from "@/components/site/Testimonials";
 import { CTABand } from "@/components/site/CTABand";
 import { Button } from "@/components/ui/button";
 import { futureDirection, impactMetrics, nepalFacts } from "@/data/impact";
-import { programs } from "@/data/programs";
+import { getPublishedOurWorkItemsServerFn } from "@/lib/our-work-server-functions";
+import { getOurWorkMetrics } from "@/lib/our-work";
 
 export const Route = createFileRoute("/impact")({
+  loader: () => getPublishedOurWorkItemsServerFn(),
+  staleTime: 0,
+  gcTime: 0,
+  shouldReload: true,
   head: () => ({
     meta: [
       { title: "Our Impact | Umanga Nepal" },
@@ -29,6 +34,7 @@ export const Route = createFileRoute("/impact")({
 });
 
 function Impact() {
+  const programs = Route.useLoaderData();
   return (
     <>
       <PageHero
@@ -64,17 +70,17 @@ function Impact() {
         <SectionHeading eyebrow="By program" title="Where the work happens" />
         <ul className="mt-10 grid gap-4 md:grid-cols-2">
           {programs
-            .filter((p) => p.metrics?.length)
+            .filter((p) => getOurWorkMetrics(p).length > 0)
             .map((program) => (
               <li
                 key={program.id}
                 className="flex flex-col gap-3 rounded-3xl border border-border bg-card p-7 shadow-soft"
               >
-                <span className="eyebrow">{program.category}</span>
+                <span className="eyebrow">{program.type}</span>
                 <h3 className="font-display text-xl font-bold text-ink-deep">{program.title}</h3>
                 <ul className="flex flex-wrap gap-6">
-                  {program.metrics?.map((metric) => (
-                    <li key={metric.label}>
+                  {getOurWorkMetrics(program).map((metric) => (
+                    <li key={metric.id}>
                       <p className="font-display text-2xl font-extrabold text-brand-strong">
                         <Counter value={metric.value} />
                       </p>

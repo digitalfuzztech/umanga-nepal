@@ -1,6 +1,6 @@
 import wmhd from "@/assets/program-wmhd.jpg";
 import awareness from "@/assets/program-awareness.jpg";
-import online from "@/assets/program-online.jpg";
+import online from "@/assets/program-online.png";
 import type { EventItem, NewsItem } from "./types";
 
 /** Demo content for layout. Replace with confirmed organizational updates. */

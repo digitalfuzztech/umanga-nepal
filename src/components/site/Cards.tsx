@@ -1,13 +1,9 @@
 import { ArrowRight, CalendarDays, Clock, MapPin } from "lucide-react";
-import type {
-  EventItem,
-  NewsItem,
-  Program,
-  Resource,
-  Story,
-} from "@/data/types";
+import type { EventItem, NewsItem, Resource, Story } from "@/data/types";
 import { AppLink } from "./AppLink";
 import { Reveal } from "./Reveal";
+import { ProgramImage } from "./ProgramImage";
+import type { PublicOurWorkItem } from "@/lib/our-work";
 
 const formatDate = (value?: string) =>
   value
@@ -18,13 +14,20 @@ const formatDate = (value?: string) =>
       })
     : "";
 
-export function ProgramCard({ program }: { program: Program }) {
+export function ProgramCard({
+  program,
+}: {
+  program: Pick<
+    PublicOurWorkItem,
+    "slug" | "title" | "type" | "description" | "imageUrl"
+  >;
+}) {
   return (
     <Reveal className="h-full">
       <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-brand-muted/55 bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand/65 hover:shadow-lift">
         <div className="relative aspect-[16/10] overflow-hidden">
-          <img
-            src={program.heroImage}
+          <ProgramImage
+            src={program.imageUrl}
             alt={program.title}
             loading="lazy"
             width={1400}
@@ -32,7 +35,7 @@ export function ProgramCard({ program }: { program: Program }) {
             className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <span className="absolute left-4 top-4 rounded-full bg-background/95 px-3 py-1 text-xs font-semibold text-brand-strong">
-            {program.category}
+            {program.type}
           </span>
         </div>
         <div className="relative flex flex-1 flex-col gap-3 p-6 before:absolute before:left-6 before:top-0 before:h-0.5 before:w-12 before:bg-warm">
@@ -40,7 +43,7 @@ export function ProgramCard({ program }: { program: Program }) {
             {program.title}
           </h3>
           <p className="flex-1 text-sm text-muted-foreground">
-            {program.shortDescription}
+            {program.description}
           </p>
           <AppLink
             to={`/our-work/${program.slug}`}
