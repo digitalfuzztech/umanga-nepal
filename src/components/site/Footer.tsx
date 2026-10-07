@@ -9,7 +9,6 @@ import {
   Youtube,
 } from "lucide-react";
 import { footerNav, siteConfig } from "@/data/site-config";
-import { Logo } from "./Logo";
 import umangaLogo from "@/assets/logo/umanga-png.png";
 
 const socialIcons = {
@@ -64,9 +63,8 @@ export function Footer() {
       />
       <div className="container-page relative grid gap-10 py-16 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
         <div className="max-w-sm">
-          <div className="inline-flex rounded-2xl bg-white p-2.5 shadow-soft">
-
-              <img src={{umangaLogo}} alt="umanga logo" className="[&_img]:!w-60"/>
+          <div className="inline-flex rounded-xl bg-white p-1 shadow-soft">
+            <img src={umangaLogo} alt="umanga logo" className="!w-40" />
           </div>
           <p className="mt-6 text-sm leading-relaxed text-white/70">
             {siteConfig.shortDescription}

@@ -63,6 +63,12 @@ export type AdminOurWorkItem = {
   imageUrl: string;
   imageStorageKey: string;
   aboutProgram: string | null;
+  advisoryNote: string | null;
+  featured: boolean;
+  awarenessSessionLabel: string | null;
+  awarenessSessionNote: string | null;
+  participantLabel: string | null;
+  participantNote: string | null;
   whatWeCover: string[];
   awarenessSessionCount: number | null;
   participantCount: number | null;
@@ -83,6 +89,12 @@ type MetadataValues = {
   description: string;
   tags: string[];
   aboutProgram: string;
+  advisoryNote: string;
+  featured: boolean;
+  awarenessSessionLabel: string;
+  awarenessSessionNote: string;
+  participantLabel: string;
+  participantNote: string;
   whatWeCover: string[];
   awarenessSessionCount: string;
   participantCount: string;
@@ -97,6 +109,11 @@ type FieldName =
   | "description"
   | "tags"
   | "aboutProgram"
+  | "advisoryNote"
+  | "awarenessSessionLabel"
+  | "awarenessSessionNote"
+  | "participantLabel"
+  | "participantNote"
   | "whatWeCover"
   | "awarenessSessionCount"
   | "participantCount"
@@ -280,6 +297,9 @@ function OurWorkItemCard({
             </p>
           </div>
           <StatusBadge published={item.published} />
+          {item.featured ? (
+            <span className="text-xs font-semibold text-sky-700">Featured</span>
+          ) : null}
         </div>
         <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
           {item.description}
@@ -305,19 +325,27 @@ function OurWorkItemCard({
           {item.awarenessSessionCount !== null ? (
             <span className="inline-flex items-center gap-1.5">
               <BarChart3 className="size-3.5" aria-hidden />
-              {item.awarenessSessionCount} sessions
+              {item.awarenessSessionCount}{" "}
+              {item.awarenessSessionLabel ?? "sessions"}
+              {item.awarenessSessionNote
+                ? ` (${item.awarenessSessionNote})`
+                : ""}
             </span>
           ) : null}
           {item.participantCount !== null ? (
             <span className="inline-flex items-center gap-1.5">
               <Users className="size-3.5" aria-hidden />
-              {item.participantCount} participants
+              {item.participantCount} {item.participantLabel ?? "participants"}
+              {item.participantNote ? ` (${item.participantNote})` : ""}
             </span>
           ) : null}
           {item.sortOrder !== null ? (
             <span>Sort order: {item.sortOrder}</span>
           ) : null}
         </div>
+        {item.advisoryNote ? (
+          <p className="mt-3 text-sm text-slate-600">{item.advisoryNote}</p>
+        ) : null}
         <div className="mt-5 flex flex-col gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:flex-wrap">
           <Button
             type="button"
@@ -940,6 +968,27 @@ function MetadataFields({
         disabled={disabled}
         onChange={(whatWeCover) => onChange({ ...values, whatWeCover })}
       />
+      <TextareaField
+        id={`${prefix}-advisory`}
+        label="Program Advisory Note"
+        value={values.advisoryNote}
+        rows={3}
+        maxLength={5000}
+        error={errors.advisoryNote}
+        disabled={disabled}
+        onChange={(advisoryNote) => onChange({ ...values, advisoryNote })}
+      />
+      <label className="flex items-center gap-3 text-sm font-semibold text-slate-800">
+        <input
+          type="checkbox"
+          checked={values.featured}
+          disabled={disabled}
+          onChange={(event) =>
+            onChange({ ...values, featured: event.target.checked })
+          }
+        />
+        Featured
+      </label>
       <div className="grid gap-5 sm:grid-cols-2">
         <NumberField
           id={`${prefix}-sessions`}
@@ -963,6 +1012,54 @@ function MetadataFields({
             onChange({ ...values, participantCount })
           }
         />
+        <div className="flex flex-col gap-5">
+          <TextField
+            id={`${prefix}-session-label`}
+            label="Session Metric Label"
+            value={values.awarenessSessionLabel}
+            maxLength={120}
+            error={errors.awarenessSessionLabel}
+            disabled={disabled}
+            onChange={(awarenessSessionLabel) =>
+              onChange({ ...values, awarenessSessionLabel })
+            }
+          />
+          <TextField
+            id={`${prefix}-session-note`}
+            label="Session Metric Note"
+            value={values.awarenessSessionNote}
+            maxLength={1000}
+            error={errors.awarenessSessionNote}
+            disabled={disabled}
+            onChange={(awarenessSessionNote) =>
+              onChange({ ...values, awarenessSessionNote })
+            }
+          />
+        </div>
+        <div className="flex flex-col gap-5">
+          <TextField
+            id={`${prefix}-participant-label`}
+            label="Participant Metric Label"
+            value={values.participantLabel}
+            maxLength={120}
+            error={errors.participantLabel}
+            disabled={disabled}
+            onChange={(participantLabel) =>
+              onChange({ ...values, participantLabel })
+            }
+          />
+          <TextField
+            id={`${prefix}-participant-note`}
+            label="Participant Metric Note"
+            value={values.participantNote}
+            maxLength={1000}
+            error={errors.participantNote}
+            disabled={disabled}
+            onChange={(participantNote) =>
+              onChange({ ...values, participantNote })
+            }
+          />
+        </div>
       </div>
       <div className="grid gap-5 sm:grid-cols-2 sm:items-end">
         <NumberField
@@ -1409,6 +1506,12 @@ function emptyMetadata(): MetadataValues {
     description: "",
     tags: [],
     aboutProgram: "",
+    advisoryNote: "",
+    featured: false,
+    awarenessSessionLabel: "",
+    awarenessSessionNote: "",
+    participantLabel: "",
+    participantNote: "",
     whatWeCover: [],
     awarenessSessionCount: "",
     participantCount: "",
@@ -1425,6 +1528,12 @@ function metadataFromItem(item: AdminOurWorkItem): MetadataValues {
     description: item.description,
     tags: [...item.tags],
     aboutProgram: item.aboutProgram ?? "",
+    advisoryNote: item.advisoryNote ?? "",
+    featured: item.featured,
+    awarenessSessionLabel: item.awarenessSessionLabel ?? "",
+    awarenessSessionNote: item.awarenessSessionNote ?? "",
+    participantLabel: item.participantLabel ?? "",
+    participantNote: item.participantNote ?? "",
     whatWeCover: [...item.whatWeCover],
     awarenessSessionCount:
       item.awarenessSessionCount === null
@@ -1439,6 +1548,16 @@ function metadataFromItem(item: AdminOurWorkItem): MetadataValues {
 
 function validateMetadata(values: MetadataValues): FieldErrors {
   const errors: FieldErrors = {};
+  for (const [field, limit] of [
+    ["advisoryNote", 5000],
+    ["awarenessSessionLabel", 120],
+    ["awarenessSessionNote", 1000],
+    ["participantLabel", 120],
+    ["participantNote", 1000],
+  ] as const) {
+    if (values[field].trim().length > limit)
+      errors[field] = `Keep this field within ${limit} characters.`;
+  }
   const slug = values.slug.trim();
   if (!slug) errors.slug = "Slug is required.";
   else if (slug.length > 191)
@@ -1523,6 +1642,12 @@ function metadataFormData(values: MetadataValues) {
   data.append("description", values.description);
   data.append("tags", JSON.stringify(values.tags));
   data.append("aboutProgram", values.aboutProgram);
+  data.append("advisoryNote", values.advisoryNote);
+  data.append("featured", String(values.featured));
+  data.append("awarenessSessionLabel", values.awarenessSessionLabel);
+  data.append("awarenessSessionNote", values.awarenessSessionNote);
+  data.append("participantLabel", values.participantLabel);
+  data.append("participantNote", values.participantNote);
   data.append("whatWeCover", JSON.stringify(values.whatWeCover));
   data.append("awarenessSessionCount", values.awarenessSessionCount);
   data.append("participantCount", values.participantCount);

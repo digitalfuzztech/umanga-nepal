@@ -45,7 +45,7 @@ const dryRun = args.includes("--dry-run");
 // --verify audits an already migrated dataset without any writes.
 const verifyOnly = args.includes("--verify");
 
-async function requireTunnel() {
+export async function requireTunnel() {
   await new Promise<void>((accept, reject) => {
     const socket = createConnection({ host: "127.0.0.1", port: 3307 });
     const fail = () => {
@@ -68,7 +68,7 @@ async function requireTunnel() {
 
 // Parse literal data using TypeScript's AST, resolving Vite image imports without
 // evaluating application code or maintaining a second copy of the program copy.
-async function readPrograms(): Promise<Program[]> {
+export async function readPrograms(): Promise<Program[]> {
   const source = ts.createSourceFile(
     sourcePath,
     await readFile(sourcePath, "utf8"),
@@ -140,7 +140,7 @@ async function readPrograms(): Promise<Program[]> {
   throw new Error("Static programs declaration not found.");
 }
 
-function mapProgram(program: Program, index: number) {
+export function mapProgram(program: Program, index: number) {
   const metrics = program.metrics ?? [];
   assert(
     metrics.every((metric) => /session|participant/i.test(metric.label)),
@@ -160,11 +160,13 @@ function mapProgram(program: Program, index: number) {
     title: program.title,
     description: program.shortDescription,
     tags: program.tags,
-    // The schema has no note field; retain the complete advisory copy verbatim.
-    aboutProgram:
-      [program.description, program.note]
-        .filter((value) => value !== undefined && value !== "")
-        .join("\n\n") || null,
+    aboutProgram: program.description || null,
+    advisoryNote: program.note ?? null,
+    featured: program.featured ?? false,
+    awarenessSessionLabel: sessions[0]?.label ?? null,
+    awarenessSessionNote: sessions[0]?.note ?? null,
+    participantLabel: participants[0]?.label ?? null,
+    participantNote: participants[0]?.note ?? null,
     whatWeCover: program.topics ?? [],
     awarenessSessionCount: sessions[0]?.value ?? null,
     participantCount: participants[0]?.value ?? null,
@@ -475,7 +477,7 @@ async function main() {
         galleryUnchanged: true,
       }),
     );
-  } catch {
+  } catch (error) {
     // Only UUIDs and storage keys owned by this invocation may be removed.
     for (const item of [...created].reverse()) {
       let rowRemoved = item.id === null;
@@ -508,25 +510,31 @@ async function main() {
         }),
       );
     }
+    if (error instanceof assert.AssertionError) throw error;
     throw new Error(
       "Migration/audit failed. Cleanup results reported for this run only.",
     );
   }
 }
 
-try {
-  await main();
-} catch (error) {
-  // Do not print raw database/transport errors, their causes, or environment values.
-  console.error(
-    error instanceof assert.AssertionError
-      ? error.message
-      : error instanceof Error &&
-          error.message === "DATABASE TUNNEL NOT AVAILABLE"
+if (
+  process.argv[1] &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+  try {
+    await main();
+  } catch (error) {
+    // Do not print raw database/transport errors, their causes, or environment values.
+    console.error(
+      error instanceof assert.AssertionError
         ? error.message
-        : "Our Work migration failed. No secrets logged.",
-  );
-  process.exitCode = 1;
-} finally {
-  await closeDb();
+        : error instanceof Error &&
+            error.message === "DATABASE TUNNEL NOT AVAILABLE"
+          ? error.message
+          : "Our Work migration failed. No secrets logged.",
+    );
+    process.exitCode = 1;
+  } finally {
+    await closeDb();
+  }
 }

@@ -16,6 +16,8 @@
     "gallery:verify": "tsx scripts/verify-gallery-backend.ts",
     "our-work:verify": "tsx scripts/verify-our-work-backend.ts",
     "our-work:migrate": "tsx scripts/migrate-our-work-static.ts",
+    "our-work:backfill-fidelity": "tsx scripts/backfill-our-work-fidelity.ts",
+    "our-work:sync-images": "tsx scripts/sync-our-work-images.ts",
     "storage:verify": "tsx scripts/verify-media-storage.ts",
     "mail:verify": "tsx scripts/verify-mail.ts"
   },

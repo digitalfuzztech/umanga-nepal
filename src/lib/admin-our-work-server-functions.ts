@@ -15,6 +15,12 @@ const ourWorkMetadataTransportSchema = z
     description: z.string(),
     tags: z.array(z.string()),
     aboutProgram: z.string().nullable().optional(),
+    advisoryNote: z.string().nullable().optional(),
+    featured: z.boolean().optional().default(false),
+    awarenessSessionLabel: z.string().nullable().optional(),
+    awarenessSessionNote: z.string().nullable().optional(),
+    participantLabel: z.string().nullable().optional(),
+    participantNote: z.string().nullable().optional(),
     whatWeCover: z.array(z.string()),
     awarenessSessionCount: nullableIntegerTransportSchema,
     participantCount: nullableIntegerTransportSchema,
@@ -55,6 +61,12 @@ function readMetadata(formData: FormData) {
   const description = formData.get("description");
   const tags = parseStringArray(formData.get("tags"));
   const aboutProgram = formData.get("aboutProgram");
+  const advisoryNote = formData.get("advisoryNote");
+  const featured = formData.get("featured");
+  const awarenessSessionLabel = formData.get("awarenessSessionLabel");
+  const awarenessSessionNote = formData.get("awarenessSessionNote");
+  const participantLabel = formData.get("participantLabel");
+  const participantNote = formData.get("participantNote");
   const whatWeCover = parseStringArray(formData.get("whatWeCover"));
   const awarenessSessionCount = formData.get("awarenessSessionCount");
   const participantCount = formData.get("participantCount");
@@ -68,6 +80,14 @@ function readMetadata(formData: FormData) {
     typeof description !== "string" ||
     tags === null ||
     (aboutProgram !== null && typeof aboutProgram !== "string") ||
+    [
+      advisoryNote,
+      awarenessSessionLabel,
+      awarenessSessionNote,
+      participantLabel,
+      participantNote,
+    ].some((value) => value !== null && typeof value !== "string") ||
+    (featured !== null && featured !== "true" && featured !== "false") ||
     whatWeCover === null ||
     (awarenessSessionCount !== null &&
       typeof awarenessSessionCount !== "string") ||
@@ -85,6 +105,12 @@ function readMetadata(formData: FormData) {
     description,
     tags,
     aboutProgram: aboutProgram ?? null,
+    advisoryNote,
+    featured: featured === "true",
+    awarenessSessionLabel,
+    awarenessSessionNote,
+    participantLabel,
+    participantNote,
     whatWeCover,
     awarenessSessionCount: awarenessSessionCount ?? null,
     participantCount: participantCount ?? null,

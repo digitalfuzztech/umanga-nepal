@@ -72,6 +72,12 @@ export const ourWorkMetadataSchema = z
     description: z.string().trim().min(1).max(5_000),
     tags: normalizedStringArray(100, 50),
     aboutProgram: nullableTrimmedString(20_000).optional().default(null),
+    advisoryNote: nullableTrimmedString(5_000).optional().default(null),
+    featured: z.boolean().optional().default(false),
+    awarenessSessionLabel: nullableTrimmedString(120).optional().default(null),
+    awarenessSessionNote: nullableTrimmedString(1_000).optional().default(null),
+    participantLabel: nullableTrimmedString(120).optional().default(null),
+    participantNote: nullableTrimmedString(1_000).optional().default(null),
     whatWeCover: normalizedStringArray(500, 100),
     awarenessSessionCount: nullableNonNegativeIntegerSchema
       .optional()
@@ -104,6 +110,12 @@ export type PublishedOurWorkItem = Pick<
   | "tags"
   | "imageUrl"
   | "aboutProgram"
+  | "advisoryNote"
+  | "featured"
+  | "awarenessSessionLabel"
+  | "awarenessSessionNote"
+  | "participantLabel"
+  | "participantNote"
   | "whatWeCover"
   | "awarenessSessionCount"
   | "participantCount"
@@ -152,6 +164,12 @@ const adminColumns = {
   imageUrl: ourWorkItems.imageUrl,
   imageStorageKey: ourWorkItems.imageStorageKey,
   aboutProgram: ourWorkItems.aboutProgram,
+  advisoryNote: ourWorkItems.advisoryNote,
+  featured: ourWorkItems.featured,
+  awarenessSessionLabel: ourWorkItems.awarenessSessionLabel,
+  awarenessSessionNote: ourWorkItems.awarenessSessionNote,
+  participantLabel: ourWorkItems.participantLabel,
+  participantNote: ourWorkItems.participantNote,
   whatWeCover: ourWorkItems.whatWeCover,
   awarenessSessionCount: ourWorkItems.awarenessSessionCount,
   participantCount: ourWorkItems.participantCount,
@@ -170,6 +188,12 @@ const publicColumns = {
   tags: ourWorkItems.tags,
   imageUrl: ourWorkItems.imageUrl,
   aboutProgram: ourWorkItems.aboutProgram,
+  advisoryNote: ourWorkItems.advisoryNote,
+  featured: ourWorkItems.featured,
+  awarenessSessionLabel: ourWorkItems.awarenessSessionLabel,
+  awarenessSessionNote: ourWorkItems.awarenessSessionNote,
+  participantLabel: ourWorkItems.participantLabel,
+  participantNote: ourWorkItems.participantNote,
   whatWeCover: ourWorkItems.whatWeCover,
   awarenessSessionCount: ourWorkItems.awarenessSessionCount,
   participantCount: ourWorkItems.participantCount,
