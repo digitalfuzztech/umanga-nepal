@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  date,
   datetime,
   index,
   int,
@@ -97,6 +98,34 @@ export const ourWorkItems = mysqlTable(
   ],
 );
 
+export const storyItems = mysqlTable(
+  "story_items",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    slug: varchar("slug", { length: 191 }).notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    excerpt: text("excerpt").notNull(),
+    // Plain-text paragraphs are separated by a blank line.
+    content: text("content").notNull(),
+    category: varchar("category", { length: 100 }).notNull(),
+    attribution: varchar("attribution", { length: 255 }).notNull(),
+    imageUrl: text("image_url").notNull(),
+    imageStorageKey: varchar("image_storage_key", { length: 512 }).notNull(),
+    storyDate: date("story_date", { mode: "string" }),
+    demoContent: boolean("demo_content").default(false).notNull(),
+    published: boolean("published").default(true).notNull(),
+    sortOrder: int("sort_order"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("story_items_slug_unique").on(table.slug),
+    index("story_items_published_idx").on(table.published),
+    index("story_items_sort_order_idx").on(table.sortOrder),
+    index("story_items_story_date_idx").on(table.storyDate),
+  ],
+);
+
 export const adminUsersRelations = relations(adminUsers, ({ many }) => ({
   sessions: many(adminSessions),
 }));
@@ -116,3 +145,5 @@ export type GalleryItem = typeof galleryItems.$inferSelect;
 export type NewGalleryItem = typeof galleryItems.$inferInsert;
 export type OurWorkItem = typeof ourWorkItems.$inferSelect;
 export type NewOurWorkItem = typeof ourWorkItems.$inferInsert;
+export type StoryItem = typeof storyItems.$inferSelect;
+export type NewStoryItem = typeof storyItems.$inferInsert;
