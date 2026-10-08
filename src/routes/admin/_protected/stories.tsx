@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AdminEmptyState, AdminPageHeader } from "@/components/admin/AdminPage";
+import { AdminStoriesManager } from "@/components/admin/stories/AdminStoriesManager";
+import { listStoriesServerFn } from "@/lib/admin-stories-server-functions";
 
 export const Route = createFileRoute("/admin/_protected/stories")({
+  loader: () => listStoriesServerFn(),
   head: () => ({
     meta: [
       { title: "Stories | Umanga Nepal Admin" },
@@ -13,14 +15,5 @@ export const Route = createFileRoute("/admin/_protected/stories")({
 });
 
 function AdminStoriesPage() {
-  return (
-    <>
-      <AdminPageHeader
-        title="Stories"
-        description="Manage community and organizational stories."
-        actionLabel="Add Story"
-      />
-      <AdminEmptyState description="Story management will be added in a later CMS phase." />
-    </>
-  );
+  return <AdminStoriesManager initialResult={Route.useLoaderData()} />;
 }

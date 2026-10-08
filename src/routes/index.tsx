@@ -30,6 +30,7 @@ import { stories } from "@/data/stories";
 import { news } from "@/data/news";
 import { partners } from "@/data/testimonials";
 import { siteConfig } from "@/data/site-config";
+import hamroPalo from "@/assets/logo/hamropalo.png";
 
 export const Route = createFileRoute("/")({
   loader: () => getPublishedOurWorkItemsServerFn(),
@@ -331,7 +332,7 @@ function Home() {
               className="flex items-center gap-5 rounded-3xl border border-border bg-card p-6 shadow-soft"
             >
               <div className="flex size-20 shrink-0 items-center justify-center rounded-2xl bg-surface-blue text-xs font-semibold text-brand-strong">
-                Logo
+                <img src={hamroPalo} alt="hamro palo logo"/>
               </div>
               <div>
                 <p className="font-display text-lg font-bold text-ink-deep">{partner.name}</p>
