@@ -22,18 +22,24 @@ import { Newsletter } from "@/components/site/Newsletter";
 import { AppLink } from "@/components/site/AppLink";
 import { Reveal } from "@/components/site/Reveal";
 import { getPublishedOurWorkItemsServerFn } from "@/lib/our-work-server-functions";
+import { getPublishedStoriesServerFn } from "@/lib/stories-server-functions";
 import { getFeaturedOurWorkItem } from "@/lib/our-work";
 import { ProgramImage } from "@/components/site/ProgramImage";
 import { impactMetrics, nepalContext, objectiveGroups } from "@/data/impact";
 import { resources } from "@/data/resources";
-import { stories } from "@/data/stories";
 import { news } from "@/data/news";
 import { partners } from "@/data/testimonials";
 import { siteConfig } from "@/data/site-config";
 import hamroPalo from "@/assets/logo/hamropalo.png";
 
 export const Route = createFileRoute("/")({
-  loader: () => getPublishedOurWorkItemsServerFn(),
+  loader: async () => {
+    const [programs, stories] = await Promise.all([
+      getPublishedOurWorkItemsServerFn(),
+      getPublishedStoriesServerFn(),
+    ]);
+    return { programs, stories };
+  },
   staleTime: 0,
   gcTime: 0,
   shouldReload: true,
@@ -92,7 +98,7 @@ const entryPoints = [
 ];
 
 function Home() {
-  const programs = Route.useLoaderData();
+  const { programs, stories } = Route.useLoaderData();
   const featured = getFeaturedOurWorkItem(programs);
 
   return (
@@ -332,7 +338,11 @@ function Home() {
               className="flex items-center gap-5 rounded-3xl border border-border bg-card p-6 shadow-soft"
             >
               <div className="flex size-20 shrink-0 items-center justify-center rounded-2xl bg-surface-blue text-xs font-semibold text-brand-strong">
-                <img src={hamroPalo} alt="hamro palo logo"/>
+                <img
+                    src={partner.photo}
+                    alt={`${partner.name} logo`}
+                    className="max-h-full max-w-full object-contain"
+                />
               </div>
               <div>
                 <p className="font-display text-lg font-bold text-ink-deep">{partner.name}</p>
@@ -367,13 +377,19 @@ function Home() {
           title="Stories of hope, courage & connection"
           description="Program experiences, community change and volunteer reflections."
         />
-        <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {stories.slice(0, 3).map((story) => (
-            <li key={story.id}>
-              <StoryCard story={story} />
-            </li>
-          ))}
-        </ul>
+        {stories.length > 0 ? (
+          <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {stories.slice(0, 3).map((story) => (
+              <li key={story.id}>
+                <StoryCard story={story} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-10 text-muted-foreground">
+            More stories are on the way. Please check back soon.
+          </p>
+        )}
         <div className="mt-10">
           <Button asChild variant="outline">
             <Link to="/stories">Read more stories</Link>

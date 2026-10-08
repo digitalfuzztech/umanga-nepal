@@ -1,4 +1,14 @@
 import type { Partner, Testimonial } from "./types";
+import hamropaloLogo from "@/assets/logo/hamropalo.png";
+import skyislimitLogo from "@/assets/logo/skyislimit.png";
+
+export interface Partner {
+  id: string;
+  name: string;
+  photo: string; // This will hold the resolved imported asset path
+  description: string;
+  nameNeedsConfirmation?: boolean;
+}
 
 export const testimonials: Testimonial[] = [
   {
@@ -30,12 +40,14 @@ export const partners: Partner[] = [
   {
     id: "pa1",
     name: "Hamro Palo, Our Turn",
+    photo: hamropaloLogo,
     description:
       "Collaborating partner on community mental health awareness initiatives and campaigns.",
   },
   {
     id: "pa2",
     name: "Sky Is The Limit",
+    photo: skyislimitLogo,
     description:
       "Collaborating partner on youth-focused awareness and engagement activities.",
     nameNeedsConfirmation: true,

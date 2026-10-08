@@ -4,9 +4,13 @@ import { Section, SectionHeading } from "@/components/site/Section";
 import { StoryCard } from "@/components/site/Cards";
 import { Button } from "@/components/ui/button";
 import { Testimonials } from "@/components/site/Testimonials";
-import { stories } from "@/data/stories";
+import { getPublishedStoriesServerFn } from "@/lib/stories-server-functions";
 
 export const Route = createFileRoute("/stories/")({
+  loader: () => getPublishedStoriesServerFn(),
+  staleTime: 0,
+  gcTime: 0,
+  shouldReload: true,
   head: () => ({
     meta: [
       { title: "Stories | Voices from Umanga Nepal's Community" },
@@ -26,6 +30,7 @@ export const Route = createFileRoute("/stories/")({
 });
 
 function Stories() {
+  const stories = Route.useLoaderData();
   return (
     <>
       <PageHero
@@ -36,13 +41,19 @@ function Stories() {
 
       <Section>
         <SectionHeading eyebrow="Community voices" title="Latest stories" />
-        <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {stories.map((story) => (
-            <li key={story.id}>
-              <StoryCard story={story} />
-            </li>
-          ))}
-        </ul>
+        {stories.length > 0 ? (
+          <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {stories.map((story) => (
+              <li key={story.id}>
+                <StoryCard story={story} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-10 text-muted-foreground">
+            More stories are on the way. Please check back soon.
+          </p>
+        )}
       </Section>
 
       <Section tone="blue">

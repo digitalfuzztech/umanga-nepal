@@ -1,9 +1,10 @@
 import { ArrowRight, CalendarDays, Clock, MapPin } from "lucide-react";
-import type { EventItem, NewsItem, Resource, Story } from "@/data/types";
+import type { EventItem, NewsItem, Resource } from "@/data/types";
 import { AppLink } from "./AppLink";
 import { Reveal } from "./Reveal";
 import { ProgramImage } from "./ProgramImage";
 import type { PublicOurWorkItem } from "@/lib/our-work";
+import type { PublicStory } from "@/lib/stories";
 
 const formatDate = (value?: string) =>
   value
@@ -61,13 +62,26 @@ export function ProgramCard({
   );
 }
 
-export function StoryCard({ story }: { story: Story }) {
+export function StoryCard({
+  story,
+}: {
+  story: Pick<
+    PublicStory,
+    | "slug"
+    | "title"
+    | "excerpt"
+    | "category"
+    | "imageUrl"
+    | "storyDate"
+    | "demoContent"
+  >;
+}) {
   return (
     <Reveal className="h-full">
       <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-card transition-all duration-300 motion-safe:hover:-translate-y-0.5 hover:border-brand/65 hover:shadow-lift">
         <div className="aspect-[16/10] overflow-hidden">
-          <img
-            src={story.image}
+          <ProgramImage
+            src={story.imageUrl}
             alt={story.title}
             loading="lazy"
             width={1400}
@@ -85,9 +99,9 @@ export function StoryCard({ story }: { story: Story }) {
                 Demo content
               </span>
             ) : null}
-            {story.date ? (
+            {story.storyDate ? (
               <span className="text-muted-foreground">
-                {formatDate(story.date)}
+                {formatDate(story.storyDate)}
               </span>
             ) : null}
           </div>

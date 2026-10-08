@@ -3,22 +3,37 @@ import { ArrowLeft } from "lucide-react";
 import { Section, SectionHeading } from "@/components/site/Section";
 import { StoryCard } from "@/components/site/Cards";
 import { Button } from "@/components/ui/button";
-import { getStory, stories } from "@/data/stories";
+import {
+  getPublishedStoriesServerFn,
+  getPublishedStoryBySlugServerFn,
+} from "@/lib/stories-server-functions";
+import { getStoryParagraphs } from "@/lib/stories";
+import { ProgramImage } from "@/components/site/ProgramImage";
 import { supportDisclaimer } from "@/data/support";
 
 export const Route = createFileRoute("/stories/$slug")({
-  loader: ({ params }) => {
-    const story = getStory(params.slug);
+  loader: async ({ params }) => {
+    const story = await getPublishedStoryBySlugServerFn({ data: params.slug });
     if (!story) throw notFound();
-    return story;
+    const stories = await getPublishedStoriesServerFn();
+    return {
+      story,
+      related: stories.filter((item) => item.slug !== story.slug).slice(0, 3),
+    };
   },
+  staleTime: 0,
+  gcTime: 0,
+  shouldReload: true,
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [
-          { title: `${loaderData.title} | Umanga Nepal Stories` },
-          { name: "description", content: loaderData.excerpt },
-          { property: "og:title", content: `${loaderData.title} | Umanga Nepal` },
-          { property: "og:description", content: loaderData.excerpt },
+          { title: `${loaderData.story.title} | Umanga Nepal Stories` },
+          { name: "description", content: loaderData.story.excerpt },
+          {
+            property: "og:title",
+            content: `${loaderData.story.title} | Umanga Nepal`,
+          },
+          { property: "og:description", content: loaderData.story.excerpt },
           { property: "og:type", content: "article" },
         ]
       : [],
@@ -27,8 +42,7 @@ export const Route = createFileRoute("/stories/$slug")({
 });
 
 function StoryDetail() {
-  const story = Route.useLoaderData();
-  const related = stories.filter((s) => s.slug !== story.slug).slice(0, 3);
+  const { story, related } = Route.useLoaderData();
 
   return (
     <>
@@ -49,12 +63,15 @@ function StoryDetail() {
               <p className="mt-5 text-lg text-muted-foreground">{story.excerpt}</p>
               <p className="mt-4 text-sm text-muted-foreground">
                 {story.attribution}
-                {story.date
-                  ? ` · ${new Date(story.date).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}`
+                {story.storyDate
+                  ? ` · ${new Date(story.storyDate).toLocaleDateString(
+                      "en-GB",
+                      {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      },
+                    )}`
                   : ""}
               </p>
             </div>
@@ -63,8 +80,8 @@ function StoryDetail() {
 
         <Section>
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-            <img
-              src={story.image}
+            <ProgramImage
+              src={story.imageUrl}
               alt={story.title}
               width={1400}
               height={1000}
@@ -76,8 +93,11 @@ function StoryDetail() {
                   Demo content — placeholder narrative for layout
                 </p>
               ) : null}
-              {story.body.map((paragraph) => (
-                <p key={paragraph} className="text-base leading-relaxed text-muted-foreground">
+              {getStoryParagraphs(story.content).map((paragraph, index) => (
+                <p
+                  key={index}
+                  className="text-base leading-relaxed text-muted-foreground"
+                >
                   {paragraph}
                 </p>
               ))}
