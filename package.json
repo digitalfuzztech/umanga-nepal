@@ -17,6 +17,7 @@
     "our-work:verify": "tsx scripts/verify-our-work-backend.ts",
     "stories:verify": "tsx scripts/verify-stories-backend.ts",
     "stories:migrate": "tsx scripts/migrate-stories-static.ts",
+    "news-events:migrate": "tsx scripts/migrate-news-events-static.ts",
     "our-work:migrate": "tsx scripts/migrate-our-work-static.ts",
     "our-work:backfill-fidelity": "tsx scripts/backfill-our-work-fidelity.ts",
     "our-work:sync-images": "tsx scripts/sync-our-work-images.ts",
