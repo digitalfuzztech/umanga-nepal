@@ -20,7 +20,7 @@ export const ALLOWED_IMAGE_MIME_TYPES = [
 
 export type AllowedImageMimeType = (typeof ALLOWED_IMAGE_MIME_TYPES)[number];
 export type MediaCategory =
-  "gallery" | "our-work" | "stories" | "_storage-test";
+  "gallery" | "our-work" | "stories" | "news" | "_storage-test";
 
 type MediaExtension = "jpg" | "png" | "webp";
 
@@ -214,6 +214,7 @@ export function createMediaKey({
     category !== "gallery" &&
     category !== "our-work" &&
     category !== "stories" &&
+    category !== "news" &&
     category !== "_storage-test"
   ) {
     throw new Error("Unsupported media category.");

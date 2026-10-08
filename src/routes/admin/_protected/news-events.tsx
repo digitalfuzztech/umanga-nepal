@@ -1,11 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-
-import { AdminEmptyState, AdminPageHeader } from "@/components/admin/AdminPage";
-
-type ContentType = "News" | "Events";
+import { AdminNewsEventsManager } from "@/components/admin/news-events/AdminNewsEventsManager";
+import { kathmanduCalendarDate } from "@/components/admin/news-events/news-events-ui";
+import { listNewsServerFn } from "@/lib/admin-news-server-functions";
+import { listEventsServerFn } from "@/lib/admin-events-server-functions";
 
 export const Route = createFileRoute("/admin/_protected/news-events")({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { tab: "news" | "events" } => ({
+    tab: search["tab"] === "events" ? "events" : "news",
+  }),
+  loader: async () => {
+    const [news, events] = await Promise.all([
+      listNewsServerFn(),
+      listEventsServerFn(),
+    ]);
+    return { news, events, today: kathmanduCalendarDate() };
+  },
   head: () => ({
     meta: [
       { title: "News & Events | Umanga Nepal Admin" },
@@ -14,51 +25,17 @@ export const Route = createFileRoute("/admin/_protected/news-events")({
   }),
   component: AdminNewsEventsPage,
 });
-
 function AdminNewsEventsPage() {
-  const [activeType, setActiveType] = useState<ContentType>("News");
-
+  const data = Route.useLoaderData();
+  const { tab } = Route.useSearch();
+  const navigate = Route.useNavigate();
   return (
-    <>
-      <AdminPageHeader
-        title="News & Events"
-        description="Manage organizational updates and upcoming events."
-      />
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-        <div
-          className="inline-flex rounded-xl border border-slate-200 bg-white p-1"
-          role="tablist"
-        >
-          {(["News", "Events"] as const).map((type) => (
-            <button
-              key={type}
-              type="button"
-              role="tab"
-              aria-selected={activeType === type}
-              onClick={() => setActiveType(type)}
-              className={
-                activeType === type
-                  ? "rounded-lg bg-sky-100 px-4 py-2 text-sm font-bold text-sky-900"
-                  : "rounded-lg px-4 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900"
-              }
-            >
-              {type}
-            </button>
-          ))}
-        </div>
-        <button
-          type="button"
-          disabled
-          className="rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-bold text-white opacity-55"
-          title="Available in a later phase"
-        >
-          Add {activeType === "News" ? "News" : "Event"}
-        </button>
-      </div>
-      <AdminEmptyState
-        title={`No ${activeType.toLowerCase()} yet.`}
-        description={`${activeType} management will be connected in a later CMS phase.`}
-      />
-    </>
+    <AdminNewsEventsManager
+      {...data}
+      tab={tab}
+      onTabChange={(tab) => {
+        void navigate({ search: { tab } });
+      }}
+    />
   );
 }
