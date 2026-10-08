@@ -27,7 +27,13 @@ export const getCurrentAdminServerFn = createServerFn({
   method: "GET",
 }).handler(async () => {
   const { getCurrentAdmin } = await import("@/server/auth");
-  return getCurrentAdmin();
+  const admin = await getCurrentAdmin();
+  if (!admin) return null;
+  // Keep the internal mailbox out of the client-facing admin profile.
+  return {
+    id: admin.id,
+    email: /^admin@/i.test(admin.email) ? "Umanga staff" : admin.email,
+  };
 });
 
 export const logoutAdminServerFn = createServerFn({ method: "POST" }).handler(

@@ -1,18 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AdminEmptyState, AdminPageHeader } from "@/components/admin/AdminPage";
-
-const inboxSections = [
-  "Contact",
-  "Volunteer",
-  "Partnership Enquiry",
-  "Support Us",
-  "Invite Umanga",
-  "Share Your Story",
-  "Newsletter",
-];
+import { AdminInboxManager } from "@/components/admin/inbox/AdminInboxManager";
+import { parseInboxSearch } from "@/lib/admin-inbox-input";
+import {
+  getInboxServerFn,
+  listInboxServerFn,
+} from "@/lib/admin-inbox-server-functions";
 
 export const Route = createFileRoute("/admin/_protected/inbox")({
+  validateSearch: parseInboxSearch,
+  loaderDeps: ({ search }) => search,
+  loader: async ({ deps: { thread, ...filters } }) => ({
+    list: await listInboxServerFn({ data: filters }),
+    detail: thread ? await getInboxServerFn({ data: { id: thread } }) : null,
+  }),
   head: () => ({
     meta: [
       { title: "Inbox | Umanga Nepal Admin" },
@@ -24,32 +25,9 @@ export const Route = createFileRoute("/admin/_protected/inbox")({
 
 function AdminInboxPage() {
   return (
-    <>
-      <AdminPageHeader
-        title="Inbox"
-        description="Website enquiries and submissions will appear here."
-      />
-      <div
-        className="mt-6 flex gap-2 overflow-x-auto pb-2"
-        aria-label="Inbox categories"
-      >
-        {inboxSections.map((section, index) => (
-          <span
-            key={section}
-            className={
-              index === 0
-                ? "shrink-0 rounded-full bg-sky-100 px-3.5 py-2 text-xs font-bold text-sky-900"
-                : "shrink-0 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-500"
-            }
-          >
-            {section}
-          </span>
-        ))}
-      </div>
-      <AdminEmptyState
-        title="No submissions yet."
-        description="The inbox structure is ready. Public form connections will be added in a later phase."
-      />
-    </>
+    <AdminInboxManager
+      data={Route.useLoaderData()}
+      search={Route.useSearch()}
+    />
   );
 }
