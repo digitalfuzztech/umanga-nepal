@@ -1,5 +1,6 @@
 import { ArrowRight, CalendarDays, Clock, MapPin } from "lucide-react";
-import type { EventItem, NewsItem, Resource } from "@/data/types";
+import type { Resource } from "@/data/types";
+import type { PublicEvent, PublicNews } from "@/lib/news-events";
 import { AppLink } from "./AppLink";
 import { Reveal } from "./Reveal";
 import { ProgramImage } from "./ProgramImage";
@@ -155,13 +156,13 @@ export function ResourceCard({ resource }: { resource: Resource }) {
   );
 }
 
-export function NewsCard({ item }: { item: NewsItem }) {
+export function NewsCard({ item }: { item: PublicNews }) {
   return (
     <Reveal className="h-full">
       <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-card transition-all duration-300 motion-safe:hover:-translate-y-0.5 hover:border-brand/65 hover:shadow-lift">
         <div className="aspect-[16/10] overflow-hidden">
           <img
-            src={item.image}
+            src={item.imageUrl}
             alt={item.title}
             loading="lazy"
             width={1400}
@@ -176,7 +177,7 @@ export function NewsCard({ item }: { item: NewsItem }) {
             </span>
             <span className="inline-flex items-center gap-1">
               <CalendarDays className="size-3.5" aria-hidden />{" "}
-              {formatDate(item.date)}
+              {formatDate(`${item.newsDate}T12:00:00`)}
             </span>
             {item.location ? (
               <span className="inline-flex items-center gap-1">
@@ -200,12 +201,18 @@ export function NewsCard({ item }: { item: NewsItem }) {
   );
 }
 
-export function EventCard({ event }: { event: EventItem }) {
-  const statusLabel = {
-    upcoming: "Upcoming",
-    past: "Past event",
-    "registration-open": "Registration open",
-  }[event.status];
+export function EventCard({
+  event,
+  today,
+}: {
+  event: PublicEvent;
+  today: string;
+}) {
+  const statusLabel = event.registrationOpen
+    ? "Registration open"
+    : event.eventStart < today
+      ? "Past event"
+      : "Upcoming";
 
   return (
     <Reveal className="h-full">
@@ -226,7 +233,7 @@ export function EventCard({ event }: { event: EventItem }) {
           <div className="flex items-center gap-2">
             <CalendarDays className="size-4 text-brand-strong" aria-hidden />
             <dt className="sr-only">Date</dt>
-            <dd>{formatDate(event.date)}</dd>
+            <dd>{formatDate(`${event.eventStart}T12:00:00`)}</dd>
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="size-4 text-brand-strong" aria-hidden />

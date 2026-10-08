@@ -1,5 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 
+export const getEventsCalendarDateServerFn = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  const { getKathmanduDate } = await import("@/server/news-events/validation");
+  return getKathmanduDate();
+});
+
 export const getPublishedEventsServerFn = createServerFn({
   method: "GET",
 }).handler(async () => {

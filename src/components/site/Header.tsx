@@ -1,10 +1,9 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useLoaderData } from "@tanstack/react-router";
 import { ArrowRight, ChevronDown, LifeBuoy, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { mainNav } from "@/data/site-config";
-import { events } from "@/data/news";
 import { Logo } from "./Logo";
 
 function DesktopDropdown({
@@ -84,29 +83,16 @@ function DesktopDropdown({
 }
 
 function UpcomingEventBar() {
-  const todayParts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kathmandu",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
-  const datePart = (type: "year" | "month" | "day") =>
-    todayParts.find((part) => part.type === type)?.value ?? "";
-  const today = `${datePart("year")}-${datePart("month")}-${datePart("day")}`;
-
-  const nextEvent = events
-    .filter((event) => event.status !== "past" && event.date >= today)
-    .sort((a, b) => a.date.localeCompare(b.date))[0];
+  const { nextEvent } = useLoaderData({ from: "__root__" });
 
   if (!nextEvent) return null;
 
-  const eventDate = new Date(`${nextEvent.date}T12:00:00`).toLocaleDateString(
-    "en-US",
-    {
-      month: "long",
-      day: "numeric",
-    },
-  );
+  const eventDate = new Date(
+    `${nextEvent.eventStart}T12:00:00`,
+  ).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+  });
 
   return (
     <div className="border-b border-brand-deep/15 bg-brand-deep text-white">
@@ -216,7 +202,7 @@ export function Header() {
 
           <div className="hidden shrink-0 items-center gap-2 lg:flex">
             <Button asChild variant="ghost" size="sm">
-              <Link to="/get-support" className='outline'>
+              <Link to="/get-support" className="outline">
                 <LifeBuoy aria-hidden /> Need support?
               </Link>
             </Button>

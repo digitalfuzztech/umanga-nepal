@@ -4,9 +4,24 @@ import { Section, SectionHeading } from "@/components/site/Section";
 import { EventCard, NewsCard } from "@/components/site/Cards";
 import { Button } from "@/components/ui/button";
 import { Newsletter } from "@/components/site/Newsletter";
-import { events, news } from "@/data/news";
+import { getPublishedNewsServerFn } from "@/lib/news-server-functions";
+import {
+  getPublishedEventsServerFn,
+  getEventsCalendarDateServerFn,
+} from "@/lib/events-server-functions";
 
 export const Route = createFileRoute("/news/")({
+  loader: async () => {
+    const [news, events, today] = await Promise.all([
+      getPublishedNewsServerFn(),
+      getPublishedEventsServerFn(),
+      getEventsCalendarDateServerFn(),
+    ]);
+    return { news, events, today };
+  },
+  staleTime: 0,
+  gcTime: 0,
+  shouldReload: true,
   head: () => ({
     meta: [
       { title: "News & Events | Umanga Nepal" },
@@ -26,7 +41,10 @@ export const Route = createFileRoute("/news/")({
 });
 
 function News() {
-  const upcoming = events.filter((event) => event.status !== "past").slice(0, 3);
+  const { news, events, today } = Route.useLoaderData();
+  const upcoming = events
+    .filter((event) => event.eventStart >= today)
+    .slice(0, 3);
 
   return (
     <>
@@ -56,7 +74,7 @@ function News() {
         <ul className="reveal-grid mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {upcoming.map((event) => (
             <li key={event.id}>
-              <EventCard event={event} />
+              <EventCard event={event} today={today} />
             </li>
           ))}
         </ul>

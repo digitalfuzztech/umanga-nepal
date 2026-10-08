@@ -27,18 +27,19 @@ import { getFeaturedOurWorkItem } from "@/lib/our-work";
 import { ProgramImage } from "@/components/site/ProgramImage";
 import { impactMetrics, nepalContext, objectiveGroups } from "@/data/impact";
 import { resources } from "@/data/resources";
-import { news } from "@/data/news";
+import { getPublishedNewsServerFn } from "@/lib/news-server-functions";
 import { partners } from "@/data/testimonials";
 import { siteConfig } from "@/data/site-config";
 import hamroPalo from "@/assets/logo/hamropalo.png";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
-    const [programs, stories] = await Promise.all([
+    const [programs, stories, news] = await Promise.all([
       getPublishedOurWorkItemsServerFn(),
       getPublishedStoriesServerFn(),
+      getPublishedNewsServerFn(),
     ]);
-    return { programs, stories };
+    return { programs, stories, news };
   },
   staleTime: 0,
   gcTime: 0,
@@ -98,7 +99,7 @@ const entryPoints = [
 ];
 
 function Home() {
-  const { programs, stories } = Route.useLoaderData();
+  const { programs, stories, news } = Route.useLoaderData();
   const featured = getFeaturedOurWorkItem(programs);
 
   return (
