@@ -21,7 +21,8 @@
     "our-work:backfill-fidelity": "tsx scripts/backfill-our-work-fidelity.ts",
     "our-work:sync-images": "tsx scripts/sync-our-work-images.ts",
     "storage:verify": "tsx scripts/verify-media-storage.ts",
-    "mail:verify": "tsx scripts/verify-mail.ts"
+    "mail:verify": "tsx scripts/verify-mail.ts",
+    "mail:routing:verify": "tsx scripts/verify-mail-routing.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"

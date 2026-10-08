@@ -7,6 +7,7 @@ import {
   int,
   json,
   mediumtext,
+  mysqlEnum,
   mysqlTable,
   text,
   timestamp,
@@ -129,6 +130,97 @@ export const storyItems = mysqlTable(
   ],
 );
 
+export type InboxMetadataValue =
+  | string
+  | number
+  | boolean
+  | null
+  | InboxMetadataValue[]
+  | { [key: string]: InboxMetadataValue };
+
+// The Inbox migration explicitly creates these tables as utf8mb4_unicode_ci;
+// Drizzle's MySQL table API does not model table charset/collation.
+export const inboxThreads = mysqlTable(
+  "inbox_threads",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    channel: mysqlEnum("channel", [
+      "contact",
+      "newsletter",
+      "volunteer",
+      "partner",
+      "support",
+      "invite",
+      "stories",
+    ]).notNull(),
+    mailbox: varchar("mailbox", { length: 320 }).notNull(),
+    leadName: varchar("lead_name", { length: 255 }),
+    leadEmail: varchar("lead_email", { length: 320 }).notNull(),
+    leadPhone: varchar("lead_phone", { length: 100 }),
+    subject: varchar("subject", { length: 255 }),
+    metadata: json("metadata")
+      .$type<Record<string, InboxMetadataValue>>()
+      .notNull(),
+    status: mysqlEnum("status", ["new", "open", "resolved"])
+      .default("new")
+      .notNull(),
+    readAt: datetime("read_at", { mode: "date" }),
+    lastMessageAt: timestamp("last_message_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    index("inbox_threads_channel_idx").on(table.channel),
+    index("inbox_threads_status_idx").on(table.status),
+    index("inbox_threads_read_at_idx").on(table.readAt),
+    index("inbox_threads_last_message_at_idx").on(table.lastMessageAt),
+    index("inbox_threads_created_at_idx").on(table.createdAt),
+    index("inbox_threads_lead_email_idx").on(table.leadEmail),
+  ],
+);
+
+export const inboxMessages = mysqlTable(
+  "inbox_messages",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    threadId: varchar("thread_id", { length: 36 })
+      .notNull()
+      .references(() => inboxThreads.id, { onDelete: "cascade" }),
+    direction: mysqlEnum("direction", [
+      "inbound",
+      "outbound",
+      "system",
+    ]).notNull(),
+    senderType: mysqlEnum("sender_type", ["lead", "staff", "system"]).notNull(),
+    fromAddress: varchar("from_address", { length: 320 }).notNull(),
+    toAddress: varchar("to_address", { length: 320 }).notNull(),
+    subject: varchar("subject", { length: 998 }),
+    body: mediumtext("body").notNull(),
+    // Null for inbound/system messages; SMTP status applies only to outbound.
+    deliveryStatus: mysqlEnum("delivery_status", ["pending", "sent", "failed"]),
+    smtpMessageId: varchar("smtp_message_id", { length: 998 }),
+    deliveryErrorCode: varchar("delivery_error_code", { length: 100 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("inbox_messages_thread_created_at_idx").on(
+      table.threadId,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const inboxThreadsRelations = relations(inboxThreads, ({ many }) => ({
+  messages: many(inboxMessages),
+}));
+
+export const inboxMessagesRelations = relations(inboxMessages, ({ one }) => ({
+  thread: one(inboxThreads, {
+    fields: [inboxMessages.threadId],
+    references: [inboxThreads.id],
+  }),
+}));
+
 export const adminUsersRelations = relations(adminUsers, ({ many }) => ({
   sessions: many(adminSessions),
 }));
@@ -150,3 +242,7 @@ export type OurWorkItem = typeof ourWorkItems.$inferSelect;
 export type NewOurWorkItem = typeof ourWorkItems.$inferInsert;
 export type StoryItem = typeof storyItems.$inferSelect;
 export type NewStoryItem = typeof storyItems.$inferInsert;
+export type InboxThread = typeof inboxThreads.$inferSelect;
+export type NewInboxThread = typeof inboxThreads.$inferInsert;
+export type InboxMessage = typeof inboxMessages.$inferSelect;
+export type NewInboxMessage = typeof inboxMessages.$inferInsert;

@@ -235,13 +235,26 @@ export async function verifyMailTransport(): Promise<true> {
   }
 }
 
-export async function sendMail(input: SendMailInput): Promise<SafeMailResult> {
+// Sender overrides are server-only; public callers use the typed routing map.
+export async function sendMail(
+  input: SendMailInput,
+  sender?: { address: string; name: string },
+): Promise<SafeMailResult> {
   const message = validateMessageInput(input);
   const config = getMailConfig();
   const transport = createMailTransport();
 
   const options: SendMailOptions = {
-    from: { name: config.fromName, address: config.fromAddress },
+    from: sender
+      ? {
+          name: sender.name,
+          address: validateEmailAddress(
+            sender.address,
+            "Sender",
+            "MAIL_SEND_FAILED",
+          ),
+        }
+      : { name: config.fromName, address: config.fromAddress },
     to: message.to,
     subject: message.subject.trim(),
     text: message.text,

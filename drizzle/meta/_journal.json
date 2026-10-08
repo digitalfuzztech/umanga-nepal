@@ -50,6 +50,13 @@
       "when": 1791401010585,
       "tag": "0006_stories_utf8mb4",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1791441410170,
+      "tag": "0007_right_guardian",
+      "breakpoints": true
     }
   ]
 }
