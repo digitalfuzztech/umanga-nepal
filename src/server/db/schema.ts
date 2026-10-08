@@ -138,6 +138,63 @@ export type InboxMetadataValue =
   | InboxMetadataValue[]
   | { [key: string]: InboxMetadataValue };
 
+// The News/Event creation migration specifies utf8mb4_unicode_ci explicitly;
+// Drizzle's MySQL table API does not model table charset/collation.
+export const newsItems = mysqlTable(
+  "news_items",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    slug: varchar("slug", { length: 191 }).notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    excerpt: mediumtext("excerpt").notNull(),
+    // Plain-text paragraphs are separated by a blank line.
+    content: mediumtext("content").notNull(),
+    category: varchar("category", { length: 100 }).notNull(),
+    newsDate: date("news_date", { mode: "string" }).notNull(),
+    imageUrl: mediumtext("image_url").notNull(),
+    imageStorageKey: varchar("image_storage_key", { length: 512 }).notNull(),
+    location: varchar("location", { length: 255 }),
+    demoContent: boolean("demo_content").default(false).notNull(),
+    published: boolean("published").default(true).notNull(),
+    sortOrder: int("sort_order"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("news_items_slug_unique").on(table.slug),
+    index("news_items_published_idx").on(table.published),
+    index("news_items_news_date_idx").on(table.newsDate),
+    index("news_items_sort_order_idx").on(table.sortOrder),
+  ],
+);
+
+export const eventItems = mysqlTable(
+  "event_items",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    slug: varchar("slug", { length: 191 }).notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    summary: mediumtext("summary").notNull(),
+    category: varchar("category", { length: 100 }).notNull(),
+    // Current events have calendar dates, without times or end dates.
+    eventStart: date("event_start", { mode: "string" }).notNull(),
+    location: varchar("location", { length: 255 }).notNull(),
+    // Registration is editorial; upcoming/past is derived from eventStart.
+    registrationOpen: boolean("registration_open").default(false).notNull(),
+    demoContent: boolean("demo_content").default(false).notNull(),
+    published: boolean("published").default(true).notNull(),
+    sortOrder: int("sort_order"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("event_items_slug_unique").on(table.slug),
+    index("event_items_published_idx").on(table.published),
+    index("event_items_event_start_idx").on(table.eventStart),
+    index("event_items_sort_order_idx").on(table.sortOrder),
+  ],
+);
+
 // The Inbox migration explicitly creates these tables as utf8mb4_unicode_ci;
 // Drizzle's MySQL table API does not model table charset/collation.
 export const inboxThreads = mysqlTable(
@@ -246,3 +303,7 @@ export type InboxThread = typeof inboxThreads.$inferSelect;
 export type NewInboxThread = typeof inboxThreads.$inferInsert;
 export type InboxMessage = typeof inboxMessages.$inferSelect;
 export type NewInboxMessage = typeof inboxMessages.$inferInsert;
+export type NewsItem = typeof newsItems.$inferSelect;
+export type NewNewsItem = typeof newsItems.$inferInsert;
+export type EventItem = typeof eventItems.$inferSelect;
+export type NewEventItem = typeof eventItems.$inferInsert;
