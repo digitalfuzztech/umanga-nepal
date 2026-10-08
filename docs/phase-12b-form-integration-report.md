@@ -4,7 +4,7 @@ Branch: `main`. Starting commit: `d24d6b4` (`Add Inbox and mail routing foundati
 
 ## Status
 
-All seven form pipelines are implemented. Six channels have complete recorded UI, database and SMTP results. The Stories form created its seventh test thread, but the browser harness incorrectly waited for the word "received" rather than the form's preserved Story-specific success wording. Its cleanup deleted that test row before recording the notification metadata and SMTP message ID. A single additional Stories-only verification submission has been requested; it has not been performed without approval. Phase 12B is not declared fully verified while this check is pending.
+**PHASE 12B COMPLETE — ALL 7 PUBLIC LEAD CHANNELS VERIFIED.** The user authorized one additional Stories-only UI submission to complete the missing SMTP record from the original harness. That retest passed on `main` at `062423c`, without application changes or resending the other six channels. Website notifications retain `Umanga Nepal Website <channel-address>`; future human replies retain the separate `Umanga Nepal <channel-address>` convention. Manual alias-forwarding confirmation remains required.
 
 ## Changed files
 
@@ -67,6 +67,8 @@ Initial Inbox was empty. Exactly one successful submission was attempted per cha
 
 For each of those six: one thread, one inbound message, exact searchable fields, exact structured metadata, new/unread state, separate IDs, matching timestamps, original paragraph text, correct alias and sent notification status were verified. Pending button/input state, reset after capture and visible success feedback also passed. The Contact double-click produced one POST and one lead.
 
+The authorized Stories retest made exactly one UI POST at 390px and created one `stories` thread with status `new`, `readAt = NULL`, exact name/email/title and one initial inbound message. Attribution `Publish anonymously`, consent true and source `/share-your-story` were preserved in metadata; Unicode and paragraph breaks matched exactly. From was `Umanga Nepal Website <stories@umanganepal.org>`, and To/Reply-To were `stories@umanganepal.org`. SMTP accepted that recipient with zero rejections. The unchanged success message appeared: "Thank you for trusting us with your story. The team will read it carefully and contact you before anything is published." Fields reset after capture. Public HTML, POST payload/response, configured headers and notification content contained no internal mailbox address. Only the unique retest thread was deleted, its inbound message cascaded away, and final Inbox counts were 0/0. Complete CMS snapshots were unchanged.
+
 | Channel    | Notification subject                         | From / To / Reply-To                            | SMTP accepted / rejected      | Message ID                                               |
 | ---------- | -------------------------------------------- | ----------------------------------------------- | ----------------------------- | -------------------------------------------------------- |
 | contact    | `[Umanga Nepal] New Contact Enquiry`         | contact@umanganepal.org                         | 1 / 0                         | `<f6b7ea73-6b59-9104-a3da-575967720142@umanganepal.org>` |
@@ -75,7 +77,7 @@ For each of those six: one thread, one inbound message, exact searchable fields,
 | partner    | `[Umanga Nepal] New Partnership Enquiry`     | partners@umanganepal.org                        | 1 / 0                         | `<58e6c51e-afc1-badb-39dd-35c0ef924ea0@umanganepal.org>` |
 | support    | `[Umanga Nepal] New Support Request`         | support@umanganepal.org                         | 1 / 0                         | `<5acee3c5-0327-f45b-09cb-d0992b55dcda@umanganepal.org>` |
 | invite     | `[Umanga Nepal] New Invite Umanga Request`   | invite@umanganepal.org                          | 1 / 0                         | `<fa036483-3fec-23f9-a164-546758c1f09d@umanganepal.org>` |
-| stories    | `[Umanga Nepal] New Story Submission`        | stories@umanganepal.org (code mapping verified) | receipt metadata not retained | pending additional verification approval                 |
+| stories    | `[Umanga Nepal] New Story Submission`        | stories@umanganepal.org                         | 1 / 0                         | `<063b5311-28c2-e168-f797-e1ff57aa3c62@umanganepal.org>` |
 
 **MANUAL ALIAS FORWARDING CONFIRMATION REQUIRED.** SMTP acceptance does not establish final mailbox receipt/forwarding or received header preservation. Inspect the subjects and message IDs above in the receiving mailbox manually. No IMAP access was added or used.
 
@@ -87,12 +89,12 @@ For each of those six: one thread, one inbound message, exact searchable fields,
 - Injected SMTP send failure created one temporary thread/message pair, retained it, recorded safe failure metadata and returned captured-success. Unicode, paragraphs and email lowercase normalization were verified.
 - Injected database failure used a deliberate foreign-key rejection on the second insert. The first thread insert rolled back, no partial pair survived, and the mail boundary was called zero times.
 - HTML/script-looking text remained literal in the text email and escaped in HTML.
-- Only unique test IDs were cleaned. The seven primary test threads and one persisted SMTP-failure test thread were removed by thread deletion; their messages disappeared through the cascade. No legitimate Inbox content was deleted.
+- Only unique test IDs were cleaned. The seven primary test threads, one persisted SMTP-failure test thread and one explicitly authorized additional Stories retest thread were removed by thread deletion; their messages disappeared through the cascade. No legitimate Inbox content was deleted.
 - Final Inbox: **0 threads, 0 messages**. No schema or media operations.
 
 ## Responsive, accessibility and regressions
 
-All seven forms passed 390px and 1440px checks: inputs/selects/textareas/buttons fit the viewport, labels and button names exist, status regions are polite live regions, and no horizontal overflow occurred. Pending/success states were verified for the six fully recorded channels. The Stories form's additional recorded result remains pending as described above.
+All seven forms passed 390px and 1440px checks: inputs/selects/textareas/buttons fit the viewport, labels and button names exist, status regions are polite live regions, and no horizontal overflow occurred. Pending/success states were verified for the six original fully recorded channels. The Stories-only retest also verified its unchanged success state, reset and no horizontal overflow at 390px, with no browser runtime errors.
 
 Buttons are disabled during requests, and a synchronous ref guards rapid repeated activation before a React rerender. Fields and consent are disabled while pending. Buttons remain disabled until hydration, preventing premature native submission. Success resets only after server-confirmed capture; errors preserve entered values. Existing layouts, headings, forms, select choices and consent labels are retained.
 
@@ -110,4 +112,4 @@ Changed source and built public assets contain no internal mailbox address, conf
 
 Git scope is limited to form integration, validation, notification/submission helpers, verification utility and this report. Schema, migration and existing CMS/auth/media modules are unchanged. No commit/push and no Admin Inbox/reply/News/Events/Resources implementation was performed.
 
-Before Phase 12C: finish the Stories-only receipt/field verification if authorized, then perform manual alias-forwarding confirmation. The pending verification is a test-harness record gap, not a reproduced application bug.
+Before Phase 12C: manual alias-forwarding confirmation remains required. All seven application pipelines are verified; no application blocker remains. SMTP acceptance does not independently prove delivery into the forwarded internal mailbox. No commit or push was performed during the retest.
