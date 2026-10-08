@@ -72,7 +72,7 @@ function Events() {
       ) : null}
 
       <Section tone={past.length > 0 ? "default" : "surface"}>
-        <Newsletter />
+        <Newsletter source="/events" />
       </Section>
     </>
   );

@@ -76,8 +76,9 @@ function PartnerWithUs() {
           <SectionHeading eyebrow="Start a conversation" title="Partnership enquiry" />
           <div className="mt-8">
             <InquiryForm
+              channel="partner"
               submitLabel="Send enquiry"
-              successMessage="Thank you — your partnership enquiry has been prepared for the Umanga Nepal team."
+              successMessage="Thank you. Your partnership enquiry has been received."
               fields={[
                 { name: "organization", label: "Organization name", required: true },
                 { name: "contactName", label: "Contact person", required: true },

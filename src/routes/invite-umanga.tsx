@@ -67,8 +67,9 @@ function InviteUmanga() {
           <SectionHeading eyebrow="Request" title="Session request form" />
           <div className="mt-8">
             <InquiryForm
+              channel="invite"
               submitLabel="Send request"
-              successMessage="Thank you — your session request has been prepared for the Umanga Nepal team."
+              successMessage="Thank you. Your session request has been received."
               fields={[
                 { name: "organization", label: "School / organization", required: true },
                 { name: "contactName", label: "Contact person", required: true },

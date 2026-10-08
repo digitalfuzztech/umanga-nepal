@@ -43,6 +43,7 @@ function Contact() {
             <SectionHeading eyebrow="Send a message" title="Contact form" />
             <div className="mt-8">
               <InquiryForm
+                channel="contact"
                 submitLabel="Send message"
                 fields={[
                   { name: "name", label: "Full name", required: true },

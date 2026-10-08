@@ -68,7 +68,7 @@ function News() {
       </Section>
 
       <Section>
-        <Newsletter />
+        <Newsletter source="/news" />
       </Section>
     </>
   );

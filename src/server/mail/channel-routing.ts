@@ -52,7 +52,11 @@ export function sendLeadNotification(
   channel: LeadChannel,
   input: Omit<SendMailInput, "to" | "replyTo">,
 ): Promise<SafeMailResult> {
-  return sendLeadMail(channel, { ...input, to: getLeadMailbox(channel) });
+  const address = getLeadMailbox(channel);
+  return sendMail(
+    { ...input, to: address, replyTo: address },
+    { name: "Umanga Nepal Website", address },
+  );
 }
 
 export function sendGeneralMail(

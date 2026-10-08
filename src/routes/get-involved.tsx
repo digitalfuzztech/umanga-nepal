@@ -113,7 +113,7 @@ function GetInvolved() {
       </Section>
 
       <Section>
-        <Newsletter />
+        <Newsletter source="/get-involved" />
       </Section>
     </>
   );

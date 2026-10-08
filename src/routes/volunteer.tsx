@@ -63,8 +63,9 @@ function Volunteer() {
           <SectionHeading eyebrow="Apply" title="Volunteer application" />
           <div className="mt-8">
             <InquiryForm
+              channel="volunteer"
               submitLabel="Submit application"
-              successMessage="Thank you — your volunteer application has been prepared for the Umanga Nepal team."
+              successMessage="Thank you. Your volunteer application has been received."
               consentLabel="I understand my details will be used to consider my volunteer application."
               fields={[
                 { name: "name", label: "Full name", required: true },

@@ -68,6 +68,7 @@ function ShareYourStory() {
             <SectionHeading eyebrow="Submit" title="Tell us your story" />
             <div className="mt-8">
               <InquiryForm
+                channel="stories"
                 submitLabel="Submit story"
                 successMessage="Thank you for trusting us with your story. The team will read it carefully and contact you before anything is published."
                 consentLabel="I understand my story will not be published without my explicit consent."

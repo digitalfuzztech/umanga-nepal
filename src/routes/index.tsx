@@ -569,7 +569,7 @@ function Home() {
             title="Stay connected with Umanga"
             description="Occasional updates on programs, resources and ways to take part."
           />
-          <Newsletter />
+          <Newsletter source="/" />
         </div>
       </Section>
     </>

@@ -84,8 +84,9 @@ function SupportUs() {
           <SectionHeading eyebrow="Offer support" title="Tell us how you'd like to help" />
           <div className="mt-8">
             <InquiryForm
+              channel="support"
               submitLabel="Send offer"
-              successMessage="Thank you — your offer of support has been prepared for the Umanga Nepal team."
+              successMessage="Thank you. Your offer of support has been received."
               fields={[
                 { name: "name", label: "Name", required: true },
                 { name: "organization", label: "Organization (optional)" },
