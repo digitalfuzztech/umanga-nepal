@@ -20,9 +20,9 @@ export const ALLOWED_IMAGE_MIME_TYPES = [
 
 export type AllowedImageMimeType = (typeof ALLOWED_IMAGE_MIME_TYPES)[number];
 export type MediaCategory =
-  "gallery" | "our-work" | "stories" | "news" | "_storage-test";
+  "gallery" | "our-work" | "stories" | "news" | "branding" | "_storage-test";
 
-type MediaExtension = "jpg" | "png" | "webp";
+type MediaExtension = "jpg" | "png" | "webp" | "ico";
 
 type MediaStorageConfig = {
   host: string;
@@ -216,12 +216,16 @@ export function createMediaKey({
     category !== "our-work" &&
     category !== "stories" &&
     category !== "news" &&
+    category !== "branding" &&
     category !== "_storage-test"
   ) {
     throw new Error("Unsupported media category.");
   }
 
-  if (!Object.values(MIME_EXTENSIONS).includes(extension)) {
+  if (
+    !Object.values(MIME_EXTENSIONS).includes(extension) &&
+    !(category === "branding" && extension === "ico")
+  ) {
     throw new Error("Unsupported media extension.");
   }
 
@@ -309,10 +313,16 @@ export async function uploadImage({
   category,
   onAllocated,
 }: UploadImageInput): Promise<UploadedMedia> {
-  const allowedMimeType = validateImage(buffer, mimeType);
+  const isIcon =
+    category === "branding" &&
+    (mimeType === "image/x-icon" || mimeType === "image/vnd.microsoft.icon");
+  if (isIcon) validateIcon(buffer);
+  const extension = isIcon
+    ? "ico"
+    : MIME_EXTENSIONS[validateImage(buffer, mimeType)];
   const key = createMediaKey({
     category,
-    extension: MIME_EXTENSIONS[allowedMimeType],
+    extension,
   });
   const publicUrl = getPublicMediaUrl(key);
   onAllocated?.({ key, publicUrl });
@@ -327,6 +337,43 @@ export async function uploadImage({
   });
 
   return { key, publicUrl };
+}
+
+function validateIcon(buffer: Buffer): void {
+  if (
+    !Buffer.isBuffer(buffer) ||
+    buffer.length < 22 ||
+    buffer.length > MAX_IMAGE_SIZE_BYTES ||
+    buffer.readUInt16LE(0) !== 0 ||
+    buffer.readUInt16LE(2) !== 1
+  ) {
+    throw new MediaImageValidationError(
+      "Invalid ICO favicon or file exceeds 8 MB.",
+    );
+  }
+  const count = buffer.readUInt16LE(4),
+    directoryEnd = 6 + 16 * count;
+  if (!count || directoryEnd > buffer.length)
+    throw new MediaImageValidationError("Invalid ICO directory.");
+  for (let index = 0; index < count; index++) {
+    const entry = 6 + index * 16,
+      size = buffer.readUInt32LE(entry + 8),
+      offset = buffer.readUInt32LE(entry + 12);
+    if (!size || offset < directoryEnd || offset + size > buffer.length)
+      throw new MediaImageValidationError("Invalid ICO image data.");
+    const image = buffer.subarray(offset, offset + size);
+    const png = hasExpectedImageSignature(image, "image/png");
+    if (
+      !png &&
+      (image.length < 40 ||
+        image.readUInt32LE(0) !== 40 ||
+        image.readInt32LE(4) <= 0 ||
+        image.readInt32LE(8) <= 0 ||
+        image.readUInt16LE(12) !== 1 ||
+        ![1, 4, 8, 24, 32].includes(image.readUInt16LE(14)))
+    )
+      throw new MediaImageValidationError("Invalid ICO image signature.");
+  }
 }
 
 export async function mediaExists(key: string): Promise<boolean> {

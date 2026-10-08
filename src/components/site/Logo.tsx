@@ -5,12 +5,14 @@
  */
 
 import umangaLogo from "@/assets/logo/umanga-2.png";
+import { useGeneralSettings } from "@/lib/general-settings-context";
 
 export function Logo({ className }: { className?: string }) {
+  const settings = useGeneralSettings();
   return (
     <span className={`flex min-w-0 items-center ${className ?? ""}`}>
       <img
-        src={umangaLogo}
+        src={settings?.headerLogoUrl || umangaLogo}
         alt="Umanga Nepal"
         className="h-auto w-48 object-contain min-[360px]:w-52 sm:w-58 md:w-64 xl:w-72 2xl:w-80"
       />

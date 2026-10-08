@@ -42,6 +42,8 @@ import { Route as AdminProtectedNewsEventsRouteImport } from './routes/admin/_pr
 import { Route as AdminProtectedOurWorkRouteImport } from './routes/admin/_protected/our-work'
 import { Route as AdminProtectedResourcesRouteImport } from './routes/admin/_protected/resources'
 import { Route as AdminProtectedStoriesRouteImport } from './routes/admin/_protected/stories'
+import { Route as AdminProtectedCmsIndexRouteImport } from './routes/admin/_protected/cms/index'
+import { Route as AdminProtectedCmsGeneralSettingsRouteImport } from './routes/admin/_protected/cms/general-settings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -208,6 +210,17 @@ const AdminProtectedStoriesRoute = AdminProtectedStoriesRouteImport.update({
   path: '/stories',
   getParentRoute: () => AdminProtectedRoute,
 } as any)
+const AdminProtectedCmsIndexRoute = AdminProtectedCmsIndexRouteImport.update({
+  id: '/cms/',
+  path: '/cms/',
+  getParentRoute: () => AdminProtectedRoute,
+} as any)
+const AdminProtectedCmsGeneralSettingsRoute =
+  AdminProtectedCmsGeneralSettingsRouteImport.update({
+    id: '/cms/general-settings',
+    path: '/cms/general-settings',
+    getParentRoute: () => AdminProtectedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -242,6 +255,8 @@ export interface FileRoutesByFullPath {
   '/admin/our-work': typeof AdminProtectedOurWorkRoute
   '/admin/resources': typeof AdminProtectedResourcesRoute
   '/admin/stories': typeof AdminProtectedStoriesRoute
+  '/admin/cms/general-settings': typeof AdminProtectedCmsGeneralSettingsRoute
+  '/admin/cms/': typeof AdminProtectedCmsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -275,6 +290,8 @@ export interface FileRoutesByTo {
   '/admin/our-work': typeof AdminProtectedOurWorkRoute
   '/admin/resources': typeof AdminProtectedResourcesRoute
   '/admin/stories': typeof AdminProtectedStoriesRoute
+  '/admin/cms/general-settings': typeof AdminProtectedCmsGeneralSettingsRoute
+  '/admin/cms': typeof AdminProtectedCmsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -311,6 +328,8 @@ export interface FileRoutesById {
   '/admin/_protected/our-work': typeof AdminProtectedOurWorkRoute
   '/admin/_protected/resources': typeof AdminProtectedResourcesRoute
   '/admin/_protected/stories': typeof AdminProtectedStoriesRoute
+  '/admin/_protected/cms/general-settings': typeof AdminProtectedCmsGeneralSettingsRoute
+  '/admin/_protected/cms/': typeof AdminProtectedCmsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -347,6 +366,8 @@ export interface FileRouteTypes {
     | '/admin/our-work'
     | '/admin/resources'
     | '/admin/stories'
+    | '/admin/cms/general-settings'
+    | '/admin/cms/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -380,6 +401,8 @@ export interface FileRouteTypes {
     | '/admin/our-work'
     | '/admin/resources'
     | '/admin/stories'
+    | '/admin/cms/general-settings'
+    | '/admin/cms'
   id:
     | '__root__'
     | '/'
@@ -415,6 +438,8 @@ export interface FileRouteTypes {
     | '/admin/_protected/our-work'
     | '/admin/_protected/resources'
     | '/admin/_protected/stories'
+    | '/admin/_protected/cms/general-settings'
+    | '/admin/_protected/cms/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -677,6 +702,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProtectedStoriesRouteImport
       parentRoute: typeof AdminProtectedRoute
     }
+    '/admin/_protected/cms/': {
+      id: '/admin/_protected/cms/'
+      path: '/cms'
+      fullPath: '/admin/cms/'
+      preLoaderRoute: typeof AdminProtectedCmsIndexRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
+    '/admin/_protected/cms/general-settings': {
+      id: '/admin/_protected/cms/general-settings'
+      path: '/cms/general-settings'
+      fullPath: '/admin/cms/general-settings'
+      preLoaderRoute: typeof AdminProtectedCmsGeneralSettingsRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
   }
 }
 
@@ -688,6 +727,8 @@ interface AdminProtectedRouteChildren {
   AdminProtectedOurWorkRoute: typeof AdminProtectedOurWorkRoute
   AdminProtectedResourcesRoute: typeof AdminProtectedResourcesRoute
   AdminProtectedStoriesRoute: typeof AdminProtectedStoriesRoute
+  AdminProtectedCmsGeneralSettingsRoute: typeof AdminProtectedCmsGeneralSettingsRoute
+  AdminProtectedCmsIndexRoute: typeof AdminProtectedCmsIndexRoute
 }
 
 const AdminProtectedRouteChildren: AdminProtectedRouteChildren = {
@@ -698,6 +739,8 @@ const AdminProtectedRouteChildren: AdminProtectedRouteChildren = {
   AdminProtectedOurWorkRoute: AdminProtectedOurWorkRoute,
   AdminProtectedResourcesRoute: AdminProtectedResourcesRoute,
   AdminProtectedStoriesRoute: AdminProtectedStoriesRoute,
+  AdminProtectedCmsGeneralSettingsRoute: AdminProtectedCmsGeneralSettingsRoute,
+  AdminProtectedCmsIndexRoute: AdminProtectedCmsIndexRoute,
 }
 
 const AdminProtectedRouteWithChildren = AdminProtectedRoute._addFileChildren(

@@ -15,6 +15,13 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Toaster } from "@/components/ui/sonner";
 import { getNearestEligibleEventServerFn } from "@/lib/events-server-functions";
+import { getPublicSettingsServerFn } from "@/lib/general-settings-server-functions";
+import {
+  resolveSeo,
+  organizationJsonLd,
+  websiteJsonLd,
+  serializeJsonLd,
+} from "@/lib/global-seo";
 
 function NotFoundComponent() {
   return (
@@ -82,6 +89,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
     loader: async ({ location }) => ({
+      settings: await getPublicSettingsServerFn(),
+      pathname: location.pathname,
       nextEvent:
         location.pathname === "/admin" ||
         location.pathname.startsWith("/admin/")
@@ -91,49 +100,65 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     staleTime: 0,
     gcTime: 0,
     shouldReload: true,
-    head: () => ({
-      meta: [
-        { charSet: "utf-8" },
-        { name: "viewport", content: "width=device-width, initial-scale=1" },
-        {
-          title: "Umanga Nepal | Mental Health Awareness & Community Wellbeing",
-        },
-        {
-          name: "description",
-          content:
-            "Umanga Nepal is a non-profit NGO creating spaces across Nepal where people can speak openly about mental health, learn, connect and find appropriate support.",
-        },
-        { name: "author", content: "Umanga Nepal" },
-        {
-          property: "og:title",
-          content: "Umanga Nepal | Mental Health Awareness in Nepal",
-        },
-        {
-          property: "og:description",
-          content:
-            "Awareness, psychosocial support, youth empowerment and creative programs for a mentally healthier Nepal.",
-        },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-      links: [
-        {
-          rel: "stylesheet",
-          href: appCss,
-        },
-        { rel: "preconnect", href: "https://fonts.googleapis.com" },
-        {
-          rel: "preconnect",
-          href: "https://fonts.gstatic.com",
-          crossOrigin: "anonymous",
-        },
-        {
-          rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap",
-        },
-        { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
-      ],
-    }),
+    head: ({ loaderData }) => {
+      const settings = loaderData?.settings ?? null;
+      const seo = resolveSeo(settings);
+      const structured =
+        loaderData?.pathname === "/"
+          ? [organizationJsonLd(settings), websiteJsonLd(settings)].filter(
+              Boolean,
+            )
+          : [];
+      return {
+        meta: [
+          { charSet: "utf-8" },
+          { name: "viewport", content: "width=device-width, initial-scale=1" },
+          {
+            title: seo.title,
+          },
+          {
+            name: "description",
+            content: seo.description,
+          },
+          { name: "author", content: "Umanga Nepal" },
+          {
+            property: "og:title",
+            content: seo.openGraphTitle,
+          },
+          {
+            property: "og:description",
+            content: seo.openGraphDescription,
+          },
+          { property: "og:type", content: "website" },
+          {
+            property: "og:site_name",
+            content: settings?.websiteTitle || "Umanga Nepal",
+          },
+          { name: "twitter:card", content: "summary_large_image" },
+        ],
+        links: [
+          {
+            rel: "stylesheet",
+            href: appCss,
+          },
+          { rel: "preconnect", href: "https://fonts.googleapis.com" },
+          {
+            rel: "preconnect",
+            href: "https://fonts.gstatic.com",
+            crossOrigin: "anonymous",
+          },
+          {
+            rel: "stylesheet",
+            href: "https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap",
+          },
+          { rel: "icon", href: settings?.faviconUrl || "/favicon.ico" },
+        ],
+        scripts: structured.map((value) => ({
+          type: "application/ld+json",
+          children: serializeJsonLd(value),
+        })),
+      };
+    },
 
     shellComponent: RootShell,
     component: RootComponent,
@@ -158,6 +183,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { settings } = Route.useLoaderData();
   const isAdminRoute = useRouterState({
     select: (state) =>
       state.location.pathname === "/admin" ||
@@ -169,7 +195,7 @@ function RootComponent() {
       {isAdminRoute ? (
         <Outlet />
       ) : (
-        <SiteLayout>
+        <SiteLayout settings={settings}>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
         </SiteLayout>

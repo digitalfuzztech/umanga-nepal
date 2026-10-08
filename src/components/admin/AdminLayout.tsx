@@ -21,8 +21,11 @@ export function AdminLayout({ adminEmail, children }: AdminLayoutProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const pageTitle =
-    adminNavigationItems.find((item) => item.to === pathname)?.label ??
-    "Administration";
+    adminNavigationItems.find(
+      (item) =>
+        item.to === pathname ||
+        (item.to === "/admin/cms" && pathname.startsWith("/admin/cms/")),
+    )?.label ?? "Administration";
 
   useEffect(() => {
     setIsDrawerOpen(false);
@@ -86,7 +89,7 @@ export function AdminLayout({ adminEmail, children }: AdminLayoutProps) {
           <Link
             key={item.to}
             to={item.to}
-            activeOptions={{ exact: true }}
+            activeOptions={{ exact: item.to !== "/admin/cms" }}
             onClick={() => setIsDrawerOpen(false)}
             className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 [&.active]:bg-sky-50 [&.active]:text-sky-900 [&.active]:shadow-[inset_3px_0_0_#1ebbe8]"
           >

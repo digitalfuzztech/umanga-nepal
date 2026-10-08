@@ -1,6 +1,8 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  check,
+  decimal,
   date,
   datetime,
   index,
@@ -370,3 +372,47 @@ export type EventItem = typeof eventItems.$inferSelect;
 export type NewEventItem = typeof eventItems.$inferInsert;
 export type ResourceItem = typeof resourceItems.$inferSelect;
 export type NewResourceItem = typeof resourceItems.$inferInsert;
+
+// Initial migration establishes utf8mb4_unicode_ci; id=1 is enforced in SQL.
+export const generalSettings = mysqlTable(
+  "general_settings",
+  {
+    id: int("id").primaryKey().default(1),
+    headerLogoUrl: text("header_logo_url"),
+    headerLogoStorageKey: varchar("header_logo_storage_key", { length: 512 }),
+    footerLogoUrl: text("footer_logo_url"),
+    footerLogoStorageKey: varchar("footer_logo_storage_key", { length: 512 }),
+    faviconUrl: text("favicon_url"),
+    faviconStorageKey: varchar("favicon_storage_key", { length: 512 }),
+    companyName: varchar("company_name", { length: 255 }),
+    companyDescription: mediumtext("company_description"),
+    address: text("address"),
+    phone: varchar("phone", { length: 100 }),
+    email: varchar("email", { length: 320 }),
+    latitude: decimal("latitude", { precision: 10, scale: 7, mode: "number" }),
+    longitude: decimal("longitude", {
+      precision: 10,
+      scale: 7,
+      mode: "number",
+    }),
+    facebookUrl: text("facebook_url"),
+    instagramUrl: text("instagram_url"),
+    twitterUrl: text("twitter_url"),
+    youtubeUrl: text("youtube_url"),
+    tiktokUrl: text("tiktok_url"),
+    linkedinUrl: text("linkedin_url"),
+    websiteUrl: text("website_url"),
+    websiteTitle: varchar("website_title", { length: 255 }),
+    seoTitle: varchar("seo_title", { length: 255 }),
+    seoDescription: text("seo_description"),
+    seoContent: mediumtext("seo_content"),
+    seoKeywords: text("seo_keywords"),
+    openGraphTitle: varchar("open_graph_title", { length: 255 }),
+    openGraphDescription: text("open_graph_description"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [check("general_settings_singleton", sql`${table.id} = 1`)],
+);
+export type GeneralSettings = typeof generalSettings.$inferSelect;
+export type NewGeneralSettings = typeof generalSettings.$inferInsert;

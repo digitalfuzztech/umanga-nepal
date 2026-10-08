@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": { "types": ["vite/client", "node"] },
+  "include": [
+    "../src/**/*.ts",
+    "../src/**/*.tsx",
+    "phase14f-baseline.ts",
+    "migrate-general-settings-static.ts",
+    "verify-general-settings-unit.ts",
+    "verify-phase14f1.ts",
+    "verify-general-settings-ssr.ts"
+  ]
+}
