@@ -1,6 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+export const replyInboxServerFn = createServerFn({ method: "POST" })
+  .validator(z.unknown())
+  .handler(async ({ data }) => {
+    const inbox = await import("@/server/inbox/reply");
+    return inbox.replyToInboxThread(data);
+  });
+
 export const listInboxServerFn = createServerFn({ method: "GET" })
   .validator(z.unknown())
   .handler(async ({ data }) => {

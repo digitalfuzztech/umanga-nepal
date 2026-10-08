@@ -15,6 +15,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/AdminPage";
 import { Button } from "@/components/ui/button";
+import { InboxReplyComposer } from "./InboxReplyComposer";
 import {
   channelLabels,
   inboxChannels,
@@ -625,7 +626,7 @@ export function AdminInboxManager({
                             {message.direction === "inbound"
                               ? "Received from lead"
                               : message.direction === "outbound"
-                                ? "Sent by Umanga"
+                                ? "Reply from Umanga"
                                 : "System message"}
                           </span>
                           <time
@@ -669,6 +670,14 @@ export function AdminInboxManager({
                       </li>
                     ))}
                   </ol>
+                  <InboxReplyComposer
+                    key={detail.thread.id}
+                    threadId={detail.thread.id}
+                    identity={detail.replyIdentity}
+                    onRefresh={async () => {
+                      await router.invalidate();
+                    }}
+                  />
                 </>
               )}
             </section>

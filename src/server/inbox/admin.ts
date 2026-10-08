@@ -14,6 +14,7 @@ import {
 import { getCurrentAdmin } from "../auth";
 import { db } from "../db";
 import { inboxThreads, inboxMessages } from "../db/schema";
+import { resolveInboxReply } from "./reply";
 import {
   inboxFiltersSchema,
   inboxIdSchema,
@@ -146,7 +147,18 @@ export async function getInboxThread(input: unknown) {
     !Array.isArray(notification) &&
     notification["status"] === "failed",
   );
-  return { thread: { ...thread, metadata }, messages, notificationFailed };
+  let replyIdentity: ReturnType<typeof resolveInboxReply> | null = null;
+  try {
+    replyIdentity = resolveInboxReply(thread);
+  } catch {
+    /* Invalid recipients/channels cannot be replied to. */
+  }
+  return {
+    thread: { ...thread, metadata },
+    messages,
+    notificationFailed,
+    replyIdentity,
+  };
 }
 async function existingThread(id: string) {
   const [thread] = await db
