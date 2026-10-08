@@ -15,6 +15,7 @@
     "db:seed": "tsx src/server/db/seed.ts",
     "gallery:verify": "tsx scripts/verify-gallery-backend.ts",
     "our-work:verify": "tsx scripts/verify-our-work-backend.ts",
+    "stories:verify": "tsx scripts/verify-stories-backend.ts",
     "our-work:migrate": "tsx scripts/migrate-our-work-static.ts",
     "our-work:backfill-fidelity": "tsx scripts/backfill-our-work-fidelity.ts",
     "our-work:sync-images": "tsx scripts/sync-our-work-images.ts",

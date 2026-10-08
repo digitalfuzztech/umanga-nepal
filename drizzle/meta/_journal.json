@@ -43,6 +43,13 @@
       "when": 1791400228269,
       "tag": "0005_yummy_daredevil",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1791401010585,
+      "tag": "0006_stories_utf8mb4",
+      "breakpoints": true
     }
   ]
 }

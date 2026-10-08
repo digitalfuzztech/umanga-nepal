@@ -6,6 +6,7 @@ import {
   index,
   int,
   json,
+  mediumtext,
   mysqlTable,
   text,
   timestamp,
@@ -98,18 +99,20 @@ export const ourWorkItems = mysqlTable(
   ],
 );
 
+// Drizzle's MySQL table API does not model charset/collation. Migration
+// 0006_stories_utf8mb4 is authoritative; retain it in fresh database setups.
 export const storyItems = mysqlTable(
   "story_items",
   {
     id: varchar("id", { length: 36 }).primaryKey(),
     slug: varchar("slug", { length: 191 }).notNull(),
     title: varchar("title", { length: 255 }).notNull(),
-    excerpt: text("excerpt").notNull(),
+    excerpt: mediumtext("excerpt").notNull(),
     // Plain-text paragraphs are separated by a blank line.
-    content: text("content").notNull(),
+    content: mediumtext("content").notNull(),
     category: varchar("category", { length: 100 }).notNull(),
     attribution: varchar("attribution", { length: 255 }).notNull(),
-    imageUrl: text("image_url").notNull(),
+    imageUrl: mediumtext("image_url").notNull(),
     imageStorageKey: varchar("image_storage_key", { length: 512 }).notNull(),
     storyDate: date("story_date", { mode: "string" }),
     demoContent: boolean("demo_content").default(false).notNull(),
