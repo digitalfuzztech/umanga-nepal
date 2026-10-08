@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AdminEmptyState, AdminPageHeader } from "@/components/admin/AdminPage";
+import { AdminResourcesManager } from "@/components/admin/resources/AdminResourcesManager";
+import { listResourcesServerFn } from "@/lib/admin-resources-server-functions";
 
 export const Route = createFileRoute("/admin/_protected/resources")({
+  loader: () => listResourcesServerFn(),
   head: () => ({
     meta: [
       { title: "Resources | Umanga Nepal Admin" },
@@ -13,14 +15,5 @@ export const Route = createFileRoute("/admin/_protected/resources")({
 });
 
 function AdminResourcesPage() {
-  return (
-    <>
-      <AdminPageHeader
-        title="Resources"
-        description="Manage guides, articles and mental-health resources."
-        actionLabel="Add Resource"
-      />
-      <AdminEmptyState description="Resource management will be added in a later CMS phase." />
-    </>
-  );
+  return <AdminResourcesManager initialResult={Route.useLoaderData()} />;
 }

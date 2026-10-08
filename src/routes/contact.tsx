@@ -60,6 +60,7 @@ function Contact() {
                       "Volunteering",
                       "Partnership",
                       "Media",
+                        "Event Registration",
                       "Other",
                     ],
                   },

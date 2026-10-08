@@ -37,6 +37,7 @@ type UploadImageInput = {
   buffer: Buffer;
   mimeType: string;
   category: MediaCategory;
+  onAllocated?: (media: Readonly<UploadedMedia>) => void;
 };
 
 export type UploadedMedia = {
@@ -306,6 +307,7 @@ export async function uploadImage({
   buffer,
   mimeType,
   category,
+  onAllocated,
 }: UploadImageInput): Promise<UploadedMedia> {
   const allowedMimeType = validateImage(buffer, mimeType);
   const key = createMediaKey({
@@ -313,6 +315,7 @@ export async function uploadImage({
     extension: MIME_EXTENSIONS[allowedMimeType],
   });
   const publicUrl = getPublicMediaUrl(key);
+  onAllocated?.({ key, publicUrl });
 
   await withFtp(async (client) => {
     const safeKey = assertSafeMediaKey(key);

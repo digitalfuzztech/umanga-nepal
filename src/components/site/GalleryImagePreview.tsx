@@ -6,10 +6,14 @@ export function GalleryImagePreview({
   imageUrl,
   title,
   caption,
+  imageWidth,
+  imageHeight,
 }: {
   imageUrl: string;
   title: string;
   caption: string | null;
+  imageWidth?: number | null;
+  imageHeight?: number | null;
 }) {
   const [status, setStatus] = useState<"pending" | "loaded" | "failed">(
     "pending",
@@ -28,10 +32,10 @@ export function GalleryImagePreview({
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <figure className="group relative h-full overflow-hidden rounded-[1.75rem] border border-border bg-surface-blue shadow-card">
+      <figure className="group relative overflow-hidden rounded-lg border border-border bg-surface-blue shadow-card">
         {status === "failed" ? (
           <div
-            className="flex size-full flex-col items-center justify-center gap-3 bg-brand-pale px-5 text-center text-muted-foreground"
+            className="flex min-h-48 flex-col items-center justify-center gap-3 bg-brand-pale px-5 text-center text-muted-foreground"
             role="img"
             aria-label={`Image unavailable for ${title}`}
           >
@@ -46,26 +50,26 @@ export function GalleryImagePreview({
               type="button"
               disabled={status !== "loaded"}
               aria-label={`Preview ${title}`}
-              className="block size-full cursor-zoom-in focus-visible:outline-offset-[-4px] disabled:cursor-default"
+              className="block w-full cursor-zoom-in focus-visible:outline-offset-[-4px] disabled:cursor-default"
             >
               <img
                 ref={imageRef}
                 src={imageUrl}
                 alt={title}
                 loading="lazy"
-                width={1400}
-                height={1000}
-                className="size-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.025]"
+                width={imageWidth ?? undefined}
+                height={imageHeight ?? undefined}
+                className="block h-auto w-full"
                 onLoad={() => setStatus("loaded")}
                 onError={() => setStatus("failed")}
               />
             </button>
           </Dialog.Trigger>
         )}
-        <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-brand-deeper/90 via-brand-deeper/45 to-transparent px-5 pb-4 pt-12 text-white">
+        <figcaption className="break-words px-4 py-3 text-ink-deep">
           <span className="block text-sm font-semibold">{title}</span>
           {caption ? (
-            <span className="mt-1 block text-xs leading-5 text-white/85">
+            <span className="mt-1 block whitespace-pre-wrap text-xs leading-5 text-muted-foreground">
               {caption}
             </span>
           ) : null}
@@ -116,7 +120,7 @@ export function GalleryImagePreview({
               {title}
             </Dialog.Title>
             {caption ? (
-              <Dialog.Description className="mt-2 break-words text-sm leading-6 text-white/80">
+              <Dialog.Description className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-white/80">
                 {caption}
               </Dialog.Description>
             ) : null}

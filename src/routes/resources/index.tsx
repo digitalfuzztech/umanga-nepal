@@ -6,10 +6,15 @@ import { Section, SectionHeading } from "@/components/site/Section";
 import { ResourceCard } from "@/components/site/Cards";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { resources } from "@/data/resources";
+import { getPublishedResourcesServerFn } from "@/lib/resources-server-functions";
+import { resourceView } from "@/lib/resource-view";
 import { supportDisclaimer } from "@/data/support";
 
 export const Route = createFileRoute("/resources/")({
+  loader: async () => (await getPublishedResourcesServerFn()).map(resourceView),
+  staleTime: 0,
+  gcTime: 0,
+  shouldReload: true,
   head: () => ({
     meta: [
       { title: "Mental Health Resources | Umanga Nepal" },
@@ -18,10 +23,14 @@ export const Route = createFileRoute("/resources/")({
         content:
           "Plain-language articles and guides on stress, anxiety, self-esteem, supporting a friend and knowing when to seek professional help in Nepal.",
       },
-      { property: "og:title", content: "Mental Health Resources | Umanga Nepal" },
+      {
+        property: "og:title",
+        content: "Mental Health Resources | Umanga Nepal",
+      },
       {
         property: "og:description",
-        content: "Accessible mental health articles and guides from Umanga Nepal.",
+        content:
+          "Accessible mental health articles and guides from Umanga Nepal.",
       },
     ],
   }),
@@ -29,16 +38,18 @@ export const Route = createFileRoute("/resources/")({
 });
 
 function Resources() {
+  const resources = Route.useLoaderData();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string>("All");
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(resources.map((r) => r.category)))],
-    [],
+    [resources],
   );
 
   const filtered = resources.filter((resource) => {
-    const matchesCategory = category === "All" || resource.category === category;
+    const matchesCategory =
+      category === "All" || resource.category === category;
     const q = query.trim().toLowerCase();
     const matchesQuery =
       !q ||
@@ -114,8 +125,8 @@ function Resources() {
         <div className="rounded-[2rem] border border-border bg-card p-8 shadow-soft sm:p-10">
           <span className="eyebrow">Important</span>
           <p className="mt-4 max-w-3xl text-base text-muted-foreground">
-            {supportDisclaimer} These resources are educational and do not replace assessment or
-            treatment by a qualified professional.
+            {supportDisclaimer} These resources are educational and do not
+            replace assessment or treatment by a qualified professional.
           </p>
           <Link
             to="/get-support"

@@ -45,13 +45,36 @@ export const adminSessions = mysqlTable(
   ],
 );
 
+export const galleryAlbums = mysqlTable(
+  "gallery_albums",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    caption: text("caption"),
+    category: varchar("category", { length: 100 }).notNull(),
+    contextName: varchar("context_name", { length: 255 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [index("gallery_albums_category_idx").on(table.category)],
+);
+
 export const galleryItems = mysqlTable(
   "gallery_items",
   {
     id: varchar("id", { length: 36 }).primaryKey(),
     title: varchar("title", { length: 255 }).notNull(),
-    caption: text("caption"),
-    imageUrl: text("image_url").notNull(),
+    caption: mediumtext("caption"),
+    category: varchar("category", { length: 100 }),
+    contextName: varchar("context_name", { length: 255 }),
+    albumId: varchar("album_id", { length: 36 }).references(
+      () => galleryAlbums.id,
+      { onDelete: "restrict" },
+    ),
+    imageWidth: int("image_width"),
+    imageHeight: int("image_height"),
+    imageUrl: mediumtext("image_url").notNull(),
     imageStorageKey: varchar("image_storage_key", { length: 512 }).notNull(),
     published: boolean("published").default(true).notNull(),
     sortOrder: int("sort_order"),
@@ -62,6 +85,13 @@ export const galleryItems = mysqlTable(
     index("gallery_items_published_idx").on(table.published),
     index("gallery_items_sort_order_idx").on(table.sortOrder),
     index("gallery_items_created_at_idx").on(table.createdAt),
+    index("gallery_items_category_idx").on(table.category),
+    index("gallery_items_album_id_idx").on(table.albumId),
+    index("gallery_items_public_created_idx").on(
+      table.published,
+      table.createdAt,
+      table.id,
+    ),
   ],
 );
 
@@ -195,6 +225,35 @@ export const eventItems = mysqlTable(
   ],
 );
 
+// The Resource creation migration explicitly sets utf8mb4_unicode_ci.
+export const resourceItems = mysqlTable(
+  "resource_items",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    slug: varchar("slug", { length: 191 }).notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    excerpt: mediumtext("excerpt").notNull(),
+    // Preserve source paragraphs as plain text separated by blank lines.
+    content: mediumtext("content").notNull(),
+    category: varchar("category", { length: 100 }).notNull(),
+    type: varchar("type", { length: 50 })
+      .$type<"article" | "guide">()
+      .notNull(),
+    readingTime: int("reading_time"),
+    publishedAt: date("published_at", { mode: "string" }),
+    reviewedAt: date("reviewed_at", { mode: "string" }),
+    published: boolean("published").default(true).notNull(),
+    sortOrder: int("sort_order"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("resource_items_slug_unique").on(table.slug),
+    index("resource_items_published_idx").on(table.published),
+    index("resource_items_sort_order_idx").on(table.sortOrder),
+  ],
+);
+
 // The Inbox migration explicitly creates these tables as utf8mb4_unicode_ci;
 // Drizzle's MySQL table API does not model table charset/collation.
 export const inboxThreads = mysqlTable(
@@ -295,6 +354,8 @@ export type AdminSession = typeof adminSessions.$inferSelect;
 export type NewAdminSession = typeof adminSessions.$inferInsert;
 export type GalleryItem = typeof galleryItems.$inferSelect;
 export type NewGalleryItem = typeof galleryItems.$inferInsert;
+export type GalleryAlbum = typeof galleryAlbums.$inferSelect;
+export type NewGalleryAlbum = typeof galleryAlbums.$inferInsert;
 export type OurWorkItem = typeof ourWorkItems.$inferSelect;
 export type NewOurWorkItem = typeof ourWorkItems.$inferInsert;
 export type StoryItem = typeof storyItems.$inferSelect;
@@ -307,3 +368,5 @@ export type NewsItem = typeof newsItems.$inferSelect;
 export type NewNewsItem = typeof newsItems.$inferInsert;
 export type EventItem = typeof eventItems.$inferSelect;
 export type NewEventItem = typeof eventItems.$inferInsert;
+export type ResourceItem = typeof resourceItems.$inferSelect;
+export type NewResourceItem = typeof resourceItems.$inferInsert;

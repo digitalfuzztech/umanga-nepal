@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": { "types": ["node", "vite/client"] },
+  "include": [
+    "verify-phase-14d.ts",
+    "verify-gallery-finalization.ts",
+    "../src/server/gallery/**/*.ts",
+    "../src/lib/gallery-query.ts",
+    "../src/lib/admin-gallery-server-functions.ts",
+    "../src/lib/gallery-server-functions.ts"
+  ]
+}

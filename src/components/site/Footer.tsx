@@ -125,11 +125,23 @@ export function Footer() {
 
       <div className="relative border-t border-white/10">
         <div className="container-page flex flex-col gap-3 py-6 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {year} Umanga Nepal. All rights reserved. Designed and Developed by <a href="https://blitzelement.com" className='text-blue-300 hover:text-orange-400 ease-in-out' target='_blank'>Blitz Elements</a></p>
-          <p className="max-w-xl">
-            Umanga Nepal is an awareness and community organization. This
-            website is not an emergency, crisis or clinical service.
-          </p>
+          <div className="flex flex-col items-center md:items-start">
+
+              <p>
+                  Designed and Developed by <a href="https://blitzelement.com" className='text-blue-300 hover:text-orange-400 ease-in-out' target='_blank'>Blitz Elements</a>
+              </p>
+              <p>© {year} Umanga Nepal. All rights reserved. </p>
+          </div>
+<div className="flex flex-col items-center md:items-end">
+    <p className="max-w-xl">
+        Umanga Nepal is an awareness and community organization.
+    </p>
+    <p>
+        This
+        website is not an emergency, crisis or clinical service.
+    </p>
+</div>
+
         </div>
       </div>
     </footer>

@@ -60,7 +60,11 @@ function PartnerWithUs() {
               className="flex items-center gap-5 rounded-3xl border border-border bg-card p-6 shadow-soft"
             >
               <div className="flex size-20 shrink-0 items-center justify-center rounded-2xl bg-surface-blue text-xs font-semibold text-brand-strong">
-                Logo
+                  <img
+                      src={partner.photo}
+                      alt={`${partner.name} logo`}
+                      className="max-h-full max-w-full object-contain"
+                  />
               </div>
               <div>
                 <p className="font-display text-lg font-bold text-ink-deep">{partner.name}</p>

@@ -9,7 +9,14 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react";
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import { toast } from "sonner";
 
 import {
@@ -36,6 +43,15 @@ import {
   replaceGalleryImageServerFn,
   updateGalleryItemServerFn,
 } from "@/lib/admin-gallery-server-functions";
+import {
+  GalleryAlbumsPanel,
+  type AdminGalleryAlbum,
+} from "./GalleryAlbumsPanel";
+
+const GalleryOptions = createContext<{
+  albums: AdminGalleryAlbum[];
+  categories: string[];
+}>({ albums: [], categories: [] });
 
 const MAX_IMAGE_SIZE_BYTES = 8 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -44,6 +60,9 @@ export type AdminGalleryItem = {
   id: string;
   title: string;
   caption: string | null;
+  category: string | null;
+  contextName: string | null;
+  albumId: string | null;
   imageUrl: string;
   published: boolean;
   sortOrder: number | null;
@@ -52,7 +71,7 @@ export type AdminGalleryItem = {
 };
 
 type GalleryListResult =
-  | { success: true; items: AdminGalleryItem[] }
+  | { success: true; items: AdminGalleryItem[]; albums: AdminGalleryAlbum[] }
   | { success: false; code: string; error: string };
 
 type MetadataValues = {
@@ -60,6 +79,9 @@ type MetadataValues = {
   caption: string;
   published: boolean;
   sortOrder: string;
+  category: string;
+  contextName: string;
+  albumId: string;
 };
 
 type FieldErrors = Partial<
@@ -86,6 +108,17 @@ export function AdminGalleryManager({
   );
 
   const items = initialResult.success ? initialResult.items : [];
+  const albums = initialResult.success ? initialResult.albums : [];
+  const [selectedAlbum, setSelectedAlbum] = useState("");
+  const categories = [
+    ...new Set([
+      "Event",
+      "Activity",
+      "Session",
+      "Other",
+      ...items.flatMap((item) => (item.category ? [item.category] : [])),
+    ]),
+  ];
 
   async function refreshList() {
     await router.invalidate();
@@ -96,7 +129,7 @@ export function AdminGalleryManager({
   }
 
   return (
-    <>
+    <GalleryOptions.Provider value={{ albums, categories }}>
       <div className="flex flex-col gap-5 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">
@@ -119,6 +152,14 @@ export function AdminGalleryManager({
         </Button>
       </div>
 
+      {initialResult.success ? (
+        <GalleryAlbumsPanel
+          albums={albums}
+          selectedAlbum={selectedAlbum}
+          onSelect={setSelectedAlbum}
+          refresh={refreshList}
+        />
+      ) : null}
       {!initialResult.success ? (
         <section
           className="mt-7 rounded-2xl border border-red-200 bg-red-50 p-5"
@@ -148,15 +189,17 @@ export function AdminGalleryManager({
           className="mt-7 grid gap-5 xl:grid-cols-2"
           aria-label="Gallery images"
         >
-          {items.map((item) => (
-            <GalleryItemCard
-              key={item.id}
-              item={item}
-              onEdit={() => setEditingItem(item)}
-              onReplace={() => setReplacingItem(item)}
-              onDelete={() => setDeletingItem(item)}
-            />
-          ))}
+          {items
+            .filter((item) => !selectedAlbum || item.albumId === selectedAlbum)
+            .map((item) => (
+              <GalleryItemCard
+                key={item.id}
+                item={item}
+                onEdit={() => setEditingItem(item)}
+                onReplace={() => setReplacingItem(item)}
+                onDelete={() => setDeletingItem(item)}
+              />
+            ))}
         </section>
       )}
 
@@ -184,7 +227,7 @@ export function AdminGalleryManager({
         onSuccess={refreshList}
         onUnauthorized={handleUnauthorized}
       />
-    </>
+    </GalleryOptions.Provider>
   );
 }
 
@@ -219,6 +262,7 @@ function GalleryItemCard({
   onReplace: () => void;
   onDelete: () => void;
 }) {
+  const { albums } = useContext(GalleryOptions);
   return (
     <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_16px_45px_-38px_rgba(8,47,73,0.5)] sm:grid sm:grid-cols-[11rem_minmax(0,1fr)]">
       <GalleryThumbnail item={item} />
@@ -241,7 +285,14 @@ function GalleryItemCard({
           {item.caption || "No caption provided."}
         </p>
         <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-slate-500">
-          <span>Sort order: {item.sortOrder ?? "Not set"}</span>
+          <span>
+            {item.albumId
+              ? (albums.find((album) => album.id === item.albumId)?.name ??
+                "Album photo")
+              : "Standalone photo"}
+          </span>
+          {item.category ? <span>{item.category}</span> : null}
+          {item.contextName ? <span>{item.contextName}</span> : null}
           <span className="inline-flex items-center gap-1.5">
             <CalendarDays className="size-3.5" aria-hidden />
             {formatDate(item.createdAt)}
@@ -460,6 +511,9 @@ function EditGalleryDialog({
       caption: item.caption ?? "",
       published: item.published,
       sortOrder: item.sortOrder === null ? "" : String(item.sortOrder),
+      category: item.category ?? "",
+      contextName: item.contextName ?? "",
+      albumId: item.albumId ?? "",
     });
     setErrors({});
     setFormError(null);
@@ -483,6 +537,9 @@ function EditGalleryDialog({
             caption: values.caption,
             published: values.published,
             sortOrder: values.sortOrder,
+            category: values.category || null,
+            contextName: values.contextName || null,
+            albumId: values.albumId || null,
           },
         },
       });
@@ -512,7 +569,7 @@ function EditGalleryDialog({
         <DialogHeader>
           <DialogTitle>Edit Gallery Item</DialogTitle>
           <DialogDescription>
-            Update the title, caption, visibility, or display order.
+            Update photo details and visibility.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} noValidate>
@@ -759,7 +816,7 @@ function DeleteGalleryDialog({
             ) : (
               <Trash2 aria-hidden />
             )}
-            {submitting ? "Deleting…" : "Delete"}
+            {submitting ? "Deleting…" : "Delete Image"}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -780,8 +837,90 @@ function MetadataFields({
   disabled: boolean;
   prefix: string;
 }) {
+  const { albums, categories } = useContext(GalleryOptions);
+  const isAlbumPhoto = Boolean(values.albumId);
   return (
     <>
+      <label
+        className="block text-sm font-semibold text-slate-800"
+        htmlFor={`${prefix}-album`}
+      >
+        Album
+        <select
+          id={`${prefix}-album`}
+          aria-label="Album"
+          className={inputClassName}
+          value={values.albumId}
+          disabled={disabled}
+          onChange={(event) => {
+            const album = albums.find(
+              (entry) => entry.id === event.target.value,
+            );
+            onChange({
+              ...values,
+              albumId: event.target.value,
+              ...(album
+                ? {
+                    title: album.title,
+                    caption: album.caption ?? "",
+                    category: album.category,
+                    contextName: album.contextName ?? "",
+                  }
+                : {}),
+            });
+          }}
+        >
+          <option value="">Standalone photo</option>
+          {albums
+            .filter(
+              (album) => album.photoCount < 25 || album.id === values.albumId,
+            )
+            .map((album) => (
+              <option key={album.id} value={album.id}>
+                {album.name} ({album.photoCount}/25)
+              </option>
+            ))}
+        </select>
+      </label>
+      <label
+        className="block text-sm font-semibold text-slate-800"
+        htmlFor={`${prefix}-category`}
+      >
+        Category
+        <select
+          id={`${prefix}-category`}
+          aria-label="Category"
+          className={inputClassName}
+          value={values.category}
+          disabled={disabled || isAlbumPhoto}
+          onChange={(event) =>
+            onChange({ ...values, category: event.target.value })
+          }
+        >
+          <option value="">Uncategorized</option>
+          {categories.map((category) => (
+            <option key={category}>{category}</option>
+          ))}
+        </select>
+      </label>
+      <label
+        className="block text-sm font-semibold text-slate-800"
+        htmlFor={`${prefix}-context`}
+      >
+        {["Event", "Activity", "Session"].includes(values.category)
+          ? `${values.category} Name`
+          : "Context Name"}
+        <input
+          id={`${prefix}-context`}
+          className={inputClassName}
+          value={values.contextName}
+          maxLength={255}
+          disabled={disabled || isAlbumPhoto}
+          onChange={(event) =>
+            onChange({ ...values, contextName: event.target.value })
+          }
+        />
+      </label>
       <div>
         <label
           htmlFor={`${prefix}-title`}
@@ -795,6 +934,7 @@ function MetadataFields({
           required
           maxLength={255}
           value={values.title}
+          readOnly={isAlbumPhoto}
           disabled={disabled}
           aria-invalid={Boolean(errors.title)}
           aria-describedby={errors.title ? `${prefix}-title-error` : undefined}
@@ -819,6 +959,7 @@ function MetadataFields({
           rows={4}
           maxLength={5000}
           value={values.caption}
+          readOnly={isAlbumPhoto}
           disabled={disabled}
           aria-invalid={Boolean(errors.caption)}
           aria-describedby={
@@ -842,43 +983,8 @@ function MetadataFields({
           <span>{values.caption.length}/5000</span>
         </div>
       </div>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label
-            htmlFor={`${prefix}-sort-order`}
-            className="text-sm font-semibold text-slate-800"
-          >
-            Sort Order{" "}
-            <span className="font-normal text-slate-500">(optional)</span>
-          </label>
-          <input
-            id={`${prefix}-sort-order`}
-            type="number"
-            step="1"
-            inputMode="numeric"
-            value={values.sortOrder}
-            disabled={disabled}
-            aria-invalid={Boolean(errors.sortOrder)}
-            aria-describedby={`${prefix}-sort-help${errors.sortOrder ? ` ${prefix}-sort-error` : ""}`}
-            className={inputClassName}
-            onChange={(event) =>
-              onChange({ ...values, sortOrder: event.target.value })
-            }
-          />
-          <p
-            id={`${prefix}-sort-help`}
-            className="mt-1.5 text-xs text-slate-500"
-          >
-            Lower numbers appear first.
-          </p>
-          {errors.sortOrder ? (
-            <FieldError
-              id={`${prefix}-sort-error`}
-              message={errors.sortOrder}
-            />
-          ) : null}
-        </div>
-        <label className="flex min-h-20 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 sm:mt-7">
+      <div>
+        <label className="flex min-h-20 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
           <input
             type="checkbox"
             checked={values.published}
@@ -893,7 +999,7 @@ function MetadataFields({
               Published
             </span>
             <span className="block text-xs leading-5 text-slate-500">
-              Visible when the public Gallery is connected.
+              Visible in the public Gallery.
             </span>
           </span>
         </label>
@@ -1000,7 +1106,15 @@ function useImagePreview(file: File | null) {
 }
 
 function emptyMetadata(): MetadataValues {
-  return { title: "", caption: "", published: true, sortOrder: "" };
+  return {
+    title: "",
+    caption: "",
+    published: true,
+    sortOrder: "",
+    category: "",
+    contextName: "",
+    albumId: "",
+  };
 }
 
 function validateMetadata(values: MetadataValues): FieldErrors {
@@ -1031,6 +1145,9 @@ function metadataFormData(values: MetadataValues) {
   data.append("caption", values.caption);
   data.append("published", String(values.published));
   data.append("sortOrder", values.sortOrder);
+  data.append("category", values.category);
+  data.append("contextName", values.contextName);
+  data.append("albumId", values.albumId);
   return data;
 }
 

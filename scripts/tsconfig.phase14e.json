@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": { "types": ["node", "vite/client"] },
+  "include": [
+    "migrate-resources-static.ts",
+    "verify-phase-14e.ts",
+    "serve-phase14e.ts",
+    "../src/server/resources/**/*.ts",
+    "../src/lib/resources-server-functions.ts",
+    "../src/lib/resource-view.ts"
+  ]
+}

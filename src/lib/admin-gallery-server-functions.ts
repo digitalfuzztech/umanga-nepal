@@ -9,6 +9,9 @@ const galleryMetadataTransportSchema = z
     caption: z.string().nullable().optional(),
     published: z.boolean(),
     sortOrder: z.union([z.number(), z.string(), z.null()]).optional(),
+    category: z.string().nullable().optional(),
+    contextName: z.string().nullable().optional(),
+    albumId: z.string().nullable().optional(),
   })
   .strict();
 
@@ -46,6 +49,18 @@ function readMetadata(formData: FormData) {
     caption: caption ?? null,
     published: published === "true",
     sortOrder: sortOrder ?? null,
+    category:
+      typeof formData.get("category") === "string"
+        ? String(formData.get("category")) || null
+        : null,
+    contextName:
+      typeof formData.get("contextName") === "string"
+        ? String(formData.get("contextName")) || null
+        : null,
+    albumId:
+      typeof formData.get("albumId") === "string"
+        ? String(formData.get("albumId")) || null
+        : null,
   };
 }
 
@@ -61,7 +76,12 @@ export const listGalleryItemsServerFn = createServerFn({
 
   try {
     const items = await gallery.getGalleryItemsForAdmin();
-    return { success: true as const, items };
+    const albums = await gallery.getGalleryAlbumsForAdmin();
+    return {
+      success: true as const,
+      items: items.map(({ imageStorageKey: _key, ...item }) => item),
+      albums,
+    };
   } catch (error) {
     return gallery.toGalleryFailure(error, {
       code: "UNABLE_TO_LOAD",
@@ -77,7 +97,9 @@ export const getGalleryItemServerFn = createServerFn({ method: "GET" })
 
     try {
       const item = await gallery.getGalleryItemById(data.id);
-      return { success: true as const, item };
+      if (!item) return { success: true as const, item: null };
+      const { imageStorageKey: _key, ...safeItem } = item;
+      return { success: true as const, item: safeItem };
     } catch (error) {
       return gallery.toGalleryFailure(error, {
         code: "UNABLE_TO_LOAD",
@@ -109,7 +131,8 @@ export const createGalleryItemServerFn = createServerFn({ method: "POST" })
           mimeType: image.type,
         },
       });
-      return { success: true as const, item };
+      const { imageStorageKey: _key, ...safeItem } = item;
+      return { success: true as const, item: safeItem };
     } catch (error) {
       return gallery.toGalleryFailure(error, {
         code: "UNABLE_TO_SAVE",
@@ -125,7 +148,8 @@ export const updateGalleryItemServerFn = createServerFn({ method: "POST" })
 
     try {
       const item = await gallery.updateGalleryItemMetadata(data);
-      return { success: true as const, item };
+      const { imageStorageKey: _key, ...safeItem } = item;
+      return { success: true as const, item: safeItem };
     } catch (error) {
       return gallery.toGalleryFailure(error, {
         code: "UNABLE_TO_UPDATE",
@@ -157,7 +181,12 @@ export const replaceGalleryImageServerFn = createServerFn({ method: "POST" })
           mimeType: image.type,
         },
       });
-      return { success: true as const, ...result };
+      const { imageStorageKey: _key, ...safeItem } = result.item;
+      return {
+        success: true as const,
+        item: safeItem,
+        cleanupWarning: result.cleanupWarning,
+      };
     } catch (error) {
       return gallery.toGalleryFailure(error, {
         code: "UNABLE_TO_UPDATE",
@@ -178,6 +207,75 @@ export const deleteGalleryItemServerFn = createServerFn({ method: "POST" })
       return gallery.toGalleryFailure(error, {
         code: "UNABLE_TO_DELETE",
         message: "Unable to delete gallery item.",
+      });
+    }
+  });
+
+export const createGalleryAlbumServerFn = createServerFn({ method: "POST" })
+  .validator(validateFormData)
+  .handler(async ({ data }) => {
+    const gallery = await import("@/server/gallery");
+    try {
+      const { getCurrentAdmin } = await import("@/server/auth");
+      if (!(await getCurrentAdmin()))
+        throw new gallery.GalleryApplicationError(
+          "UNAUTHORIZED",
+          "Unauthorized.",
+        );
+      const files = data.getAll("images");
+      if (
+        !files.length ||
+        files.length > 25 ||
+        files.some(
+          (file) => !(file instanceof File) || file.size > 8 * 1024 * 1024,
+        )
+      )
+        throw new gallery.GalleryApplicationError(
+          "INVALID_DATA",
+          "Select 1–25 photos, each no larger than 8 MB.",
+        );
+      const base = readMetadata(data);
+      if (!base)
+        throw new gallery.GalleryApplicationError(
+          "INVALID_DATA",
+          "Invalid album details.",
+        );
+      const { albumId: _album, ...metadata } = base;
+      const result = await gallery.createGalleryAlbum({
+        metadata: {
+          ...metadata,
+          category: metadata.category ?? "Other",
+          name: String(data.get("name") ?? ""),
+        },
+        images: await Promise.all(
+          (files as File[]).map(async (file) => ({
+            buffer: Buffer.from(await file.arrayBuffer()),
+            mimeType: file.type,
+          })),
+        ),
+      });
+      return { success: true as const, ...result };
+    } catch (error) {
+      return gallery.toGalleryFailure(error, {
+        code: "UNABLE_TO_SAVE",
+        message: "Album could not be saved.",
+      });
+    }
+  });
+
+export const deleteGalleryAlbumServerFn = createServerFn({ method: "POST" })
+  .validator(galleryIdTransportSchema)
+  .handler(async ({ data }) => {
+    const gallery = await import("@/server/gallery");
+    try {
+      return {
+        success: true as const,
+        ...(await gallery.deleteGalleryAlbum(data.id)),
+      };
+    } catch (error) {
+      return gallery.toGalleryFailure(error, {
+        code: "UNABLE_TO_DELETE",
+        message: "Album could not be deleted.",
       });
     }
   });

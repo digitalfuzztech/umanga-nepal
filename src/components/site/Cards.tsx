@@ -241,6 +241,15 @@ export function EventCard({
             <dd>{event.location}</dd>
           </div>
         </dl>
+        {event.registrationOpen ? (
+          <AppLink
+            to="/contact"
+            className="mt-auto inline-flex items-center gap-1.5 self-start text-sm font-semibold text-brand-strong underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
+          >
+            Contact for Registration{" "}
+            <ArrowRight className="size-4" aria-hidden />
+          </AppLink>
+        ) : null}
       </article>
     </Reveal>
   );
